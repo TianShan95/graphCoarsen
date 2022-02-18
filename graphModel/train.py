@@ -93,11 +93,12 @@ def train(data_out_dir, history, canvas, dataset, model, args, same_feat=True, v
             avg_loss += loss
 
             # 训练时 实时显示 loss 变化曲线
-            print(f'step: {batch_idx}')
+
             history.log((epoch, batch_idx), train_loss=loss)
             # loss_list.append(loss)
             with canvas:
                 canvas.draw_plot(history['train_loss'])
+                print(f'step: {batch_idx}, graph_size: {args.gs}')
             # print(epoch)
 
         print('epoch 结束')
