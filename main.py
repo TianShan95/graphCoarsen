@@ -12,8 +12,8 @@ import sklearn.metrics as metrics
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
+from args import arg_parse
 from processData.prepare_data import prepare_data
-import argparse
 import os
 import pickle
 import random
@@ -294,9 +294,22 @@ from processData import load_data
 def benchmark_task_val(args, feat='node-label', pred_hidden_dims=[50], device='cpu'):
     all_vals = []
 
-    data_out_dir = args.datadir + args.bmname + '_processed/pool_sizes_' + args.pool_sizes
+    # ps: pool_size 每个簇的节点数量
+    # gs: graph_size 样本每个图的大小
+    # 定义数据输出文件夹
+    data_out_dir = args.datadir
+    data_out_dir += args.bmname + '_'
+    # 如果是 Car_Hacking_Challenge_Dataset_rev20Mar2021 数据集
+    # 指定是 动态车辆报文 或者是 静止车辆报文
+    if args.dataset_name == 'Car_Hacking_Challenge_Dataset_rev20Mar2021':
+        for i in args.ds:
+            data_out_dir += i + '_'  # 表明是 车辆动态报文 或者 车辆动态报文
+        for i in args.csv_num:
+            data_out_dir += str(i)+'_'
+
+    data_out_dir = data_out_dir + 'processed/ps_' + args.pool_sizes
     # 标记 邻接矩阵是否 拉普拉斯 归一化
-    data_out_dir = data_out_dir + '_nor_' + str(bool(args.normalize)) + '/'
+    data_out_dir = data_out_dir + '_nor_' + str(bool(args.normalize)) + '_' + str(args.gs) + '/'
     # 若 数据文件夹 不存在 则新建
     if not os.path.exists(data_out_dir):
         os.makedirs(data_out_dir)
@@ -318,11 +331,11 @@ def benchmark_task_val(args, feat='node-label', pred_hidden_dims=[50], device='c
         print('No files exist, preprocessing datasets...')
 
         # 生成图数据集
-        csv_dir = args.datadir + args.bmname + '.csv'
-        p = OnlyGraphData(can_csv_dir=csv_dir, fixed_len=300)
-        p.get_a()
+        csv_dir = args.datadir + args.bmname
+        p = OnlyGraphData(args, can_csv_dir=csv_dir, fixed_len=args.gs)
+        dataset_suffix = p.get_a()
 
-        graphs = load_data.read_graphfile(args.datadir, args.bmname, max_nodes=args.max_nodes)
+        graphs = load_data.read_graphfile(dataset_suffix, max_nodes=args.max_nodes)
         print('Data length before filtering: ', len(graphs))
 
         dataset_copy = graphs.copy()
@@ -398,11 +411,11 @@ def benchmark_task_val(args, feat='node-label', pred_hidden_dims=[50], device='c
                     prepare_data(graphs, graphs_list, args, test_graphs=[], max_nodes=args.max_nodes, seed=i)
 
 
-            out_dir = args.bmname+ '/tar_' + str(args.train_ratio) + '_ter_' + str(args.test_ratio) + '/'   +  'num_shuffle' + str(args.num_shuffle)  + '/' +  'numconv_' + str(args.num_gc_layers) + '_dp_' + str(args.dropout) + '_wd_' + str(args.weight_decay) + '_b_' + str(args.batch_size) + '_hd_' + str(args.hidden_dim) + '_od_' + str(args.output_dim)  + '_ph_' + str(args.pred_hidden) + '_lr_' + str(args.lr)  + '_concat_' + str(args.concat)
-            out_dir = out_dir + '_ps_' + args.pool_sizes  + '_np_' + str(args.num_pool_matrix) + '_nfp_' + str(args.num_pool_final_matrix) + '_norL_' + str(args.normalize)  + '_mask_' + str(args.mask) + '_ne_' + args.norm  + '_cf_' + str(args.con_final)
+            out_dir = args.bmname+ '/tar_' + '_graphSize_' +str(args.gs) + str(args.train_ratio) + '_ter_' + str(args.test_ratio) + '/'   +  'num_shuffle' + str(args.num_shuffle)  + '/' +  'numconv_' + str(args.num_gc_layers) + '_dp_' + str(args.dropout) + '_wd_' + str(args.weight_decay) + '_b_' + str(args.batch_size) + '_hd_' + str(args.hidden_dim) + '_od_' + str(args.output_dim)  + '_ph_' + str(args.pred_hidden) + '_lr_' + str(args.lr)  + '_concat_' + str(args.concat)
+            out_dir = out_dir + '_ps_' + '_graphSize_' +str(args.gs) + args.pool_sizes  + '_np_' + str(args.num_pool_matrix) + '_nfp_' + str(args.num_pool_final_matrix) + '_norL_' + str(args.normalize)  + '_mask_' + str(args.mask) + '_ne_' + args.norm  + '_cf_' + str(args.con_final)
 
-            results_out_dir = args.out_dir + '/'  + args.bmname + '/with_test' + str(args.with_test) +  '/using_feat_' + args.feat + '/no_val_results/with_shuffles/' + out_dir + '/'
-            log_out_dir = args.out_dir  + '/' + args.bmname + '/with_test' + str(args.with_test) + '/using_feat_' + args.feat + '/no_val_logs/with_shuffles/'+out_dir + '/'
+            results_out_dir = args.out_dir + '/'  + args.bmname + '_graphSize_' +str(args.gs) + '/with_test' + str(args.with_test) +  '/using_feat_' + args.feat + '/no_val_results/with_shuffles/' + out_dir + '/'
+            log_out_dir = args.out_dir  + '/' + args.bmname + '_graphSize_' + str(args.gs) + '/with_test' + str(args.with_test) + '/using_feat_' + args.feat + '/no_val_logs/with_shuffles/'+out_dir + '/'
 
             if not os.path.exists(results_out_dir):
                 os.makedirs(results_out_dir, exist_ok=True)
@@ -425,13 +438,15 @@ def benchmark_task_val(args, feat='node-label', pred_hidden_dims=[50], device='c
             history = hl.History()
             canvas = hl.Canvas()
             if args.with_test:
-                _, val_accs, test_accs, best_val_result = train(history, canvas, train_dataset, model, args, val_dataset=val_dataset, test_dataset=test_dataset,
+                _, val_accs, test_accs, best_val_result = train(data_out_dir, history, canvas, train_dataset, model, args, val_dataset=val_dataset, test_dataset=test_dataset,
                  log_dir = log_out_file, device=device)
             else:
-                _, val_accs, test_accs, best_val_result = train(history, canvas, train_dataset, model, args, val_dataset=val_dataset, test_dataset=None,
+                _, val_accs, test_accs, best_val_result = train(data_out_dir, history, canvas, train_dataset, model, args, val_dataset=val_dataset, test_dataset=None,
                  log_dir = log_out_file, device=device)
 
             print('Shuffle ', i, '--------- best val result', best_val_result )
+
+
 
     #
     #         if args.with_test:
@@ -466,108 +481,6 @@ def benchmark_task_val(args, feat='node-label', pred_hidden_dims=[50], device='c
     #     if args.with_test:
     #         f.write('Test on shuffle ' + str( args.shuffle  ) +  ' : ' + str(test_ac) + '\n')
     #     f.write('------------------------------------------------------------------\n')
-
-
-def arg_parse():
-    parser = argparse.ArgumentParser(description='Arguments.')
-    parser.add_argument('--bmname', dest='bmname',
-                        help='Name of the benchmark dataset')
-    parser.add_argument('--max-nodes', dest='max_nodes', type=int,
-                        help='Maximum number of nodes (ignore graghs with nodes exceeding the number.')
-    parser.add_argument('--lr', dest='lr', type=float,
-                        help='Learning rate.')
-    parser.add_argument('--clip', dest='clip', type=float,
-                        help='Gradient clipping.')
-    parser.add_argument('--batch-size', dest='batch_size', type=int,
-                        help='Batch size.')
-    parser.add_argument('--epochs', dest='num_epochs', type=int,
-                        help='Number of epochs to train.')
-    parser.add_argument('--train-ratio', dest='train_ratio', type=float,
-                        help='Ratio of number of graphs training set to all graphs.')
-    parser.add_argument('--test-ratio', dest='test_ratio', type=float,
-                        help='Ratio of number of graphs testing set to all graphs.')
-    parser.add_argument('--num_workers', dest='num_workers', type=int,
-                        help='Number of workers to load data.')
-    parser.add_argument('--feature', dest='feature_type',
-                        help='Feature used for encoder. Can be: id, deg')
-    parser.add_argument('--input-dim', dest='input_dim', type=int,
-                        help='Input feature dimension')
-    parser.add_argument('--hidden-dim', dest='hidden_dim', type=int,
-                        help='Hidden dimension')
-    parser.add_argument('--output-dim', dest='output_dim', type=int,
-                        help='Output dimension')
-    parser.add_argument('--num-classes', dest='num_classes', type=int,
-                        help='Number of label classes')
-    parser.add_argument('--num-gc-layers', dest='num_gc_layers', type=int,
-                        help='Number of graph convolution layers before each pooling')
-    parser.add_argument('--nobn', dest='bn', action='store_const',
-                        const=False, default=True,
-                        help='Whether batch normalization is used')
-    parser.add_argument('--dropout', dest='dropout', type=float,
-                        help='Dropout rate.')
-    parser.add_argument('--nobias', dest='bias', action='store_const',
-                        const=False, default=True,
-                        help='Whether to add bias. Default to True.')
-    parser.add_argument('--datadir', dest='datadir',
-                        help='Directory where benchmark is located')
-
-    parser.add_argument('--pool_sizes', type=str,
-                        help='pool_sizes', default='10')
-    parser.add_argument('--num_pool_matrix', type=int,
-                        help='num_pooling_matrix', default=1)
-    parser.add_argument('--min_nodes', type=int,
-                        help='min_nodes', default=12)
-
-    parser.add_argument('--weight_decay', type=float,
-                        help='weight_decay', default=0.0)
-    parser.add_argument('--num_pool_final_matrix', type=int,
-                        help='number of final pool matrix', default=0)
-
-    parser.add_argument('--normalize', type=int,
-                        help='nomrlaized laplacian or not', default=0)
-    parser.add_argument('--pred_hidden', type=str,
-                        help='pred_hidden', default='50')
-
-    parser.add_argument('--out_dir', type=str,
-                        help='out_dir', default='experiment')
-    parser.add_argument('--num_shuffle', type=int,
-                        help='total num_shuffle', default=10)
-    parser.add_argument('--shuffle', type=int,
-                        help='which shuffle, choose from 0 to 9', default=0)
-    parser.add_argument('--concat', type=int,
-                        help='whether concat', default=1)
-    parser.add_argument('--feat', type=str,
-                        help='which feat to use', default='node-label')
-    parser.add_argument('--mask', type=int,
-                        help='mask or not', default=1)
-    parser.add_argument('--norm', type=str,
-                        help='Norm for eigens', default='l2')
-
-    parser.add_argument('--with_test', type=int,
-                        help='with test or not', default=0)
-    parser.add_argument('--con_final', type=int,
-                        help='con_final', default=1)
-    parser.add_argument('--device', type=str,
-                        help='cpu or cuda', default='cpu')
-    parser.set_defaults(max_nodes=1000,
-                        feature_type='default',
-                        datadir='../data/Car_Hacking_Challenge_Dataset_rev20Mar2021/0_Preliminary/0_Training/',
-                        lr=0.001,
-                        clip=2.0,
-                        batch_size=64,
-                        num_epochs=1000,
-                        train_ratio=0.8,
-                        test_ratio=0.1,
-                        num_workers=0,
-                        input_dim=10,
-                        hidden_dim=20,
-                        output_dim=20,
-                        num_classes=2,  # 分两类 正常报文 异常报文
-                        num_gc_layers=3,
-                        dropout=0.0,
-                        bmname='Pre_train_D_1',
-                        )
-    return parser.parse_args()
 
 
 def main():

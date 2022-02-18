@@ -6,17 +6,17 @@ import re
 
 
 # 本文件 在单独训练 坍塌图 网络 提供 图特征的
-def read_graphfile(datadir, dataname, max_nodes=None):
+def read_graphfile(dataset_suffix, max_nodes=None):
     ''' Read data from https://ls11-www.cs.tu-dortmund.de/staff/morris/graphkerneldatasets
         graph index starts with 1 in file
 
     Returns:
         List of networkx objects with graph and node labels
     '''
-    prefix = os.path.join(datadir, dataname)
+    # prefix = os.path.join(datadir, dataname)
 
     # 获取 节点属于哪个图 字典
-    filename_graph_indic = prefix + '_graph_indicator.txt'
+    filename_graph_indic = dataset_suffix + '_graph_indicator.txt'
     # index of graphs that a given node belongs to
     # 字典的键名是节点的编号 从1开始 递增1 键值为 该节点属于的图编号（文件图编号从 1 开始）
     # 图编号 从几开始 和文件中数字相同
@@ -34,7 +34,7 @@ def read_graphfile(datadir, dataname, max_nodes=None):
     # 列表的(角标+1) 标识 节点编号(从1开始) 元素标识 该节点编号对应的 标签
     # 默认文件的 节点标签元素 从 1 开始
     # 列表 节点标签 元素 从 0 开始
-    filename_nodes = prefix + '_node_labels.txt'
+    filename_nodes = dataset_suffix + '_node_labels.txt'
     node_labels = []
     try:
         with open(filename_nodes) as f:
@@ -65,7 +65,7 @@ def read_graphfile(datadir, dataname, max_nodes=None):
     # 列表的（角标+1）代表图编号（图编号从1开始） 元素标识该编号图的标签
     # 无论数据文件的中的图标签最小 1开始 或者 从0 开始 得到的图标签列表从 0 开始
     label_has_zero = False
-    filename_graphs = prefix + '_graph_labels.txt'
+    filename_graphs = dataset_suffix + '_graph_labels.txt'
     graph_labels = []
     with open(filename_graphs) as f:
         for line in f:
@@ -79,7 +79,7 @@ def read_graphfile(datadir, dataname, max_nodes=None):
         graph_labels += 1
 
     # 获取边字典 和 每个图包含节点编号字典
-    filename_adj = prefix + '_A.txt'
+    filename_adj = dataset_suffix + '_A.txt'
     # 该字典共有 图个数个 键值对
     # 键值是一个列表 标识 每个图的 所有的连接关系
     # 键值（列表）的元素是元祖 每个元祖标识 相连的两个节点

@@ -9,14 +9,44 @@ import collections
 
 # 处理 数据集 Car_Hacking_Challenge_Dataset_rev20Mar2021
 class OnlyGraphData:
-    def __init__(self, can_csv_dir, fixed_len):
+    def __init__(self, args, can_csv_dir, fixed_len):
+        '''
+        :param args:
+        :param can_csv_dir: 原始数据的位置 + 原始文件前缀(例如：Pre_train)
+        :param fixed_len:
+        '''
         self.fixed_len = fixed_len  # 指定 每个图需要的 can 数据长度
         col_names = ['Arbitration_ID', 'Class']
-        self.df = pd.read_csv(can_csv_dir, usecols=col_names)  # 得到全部数据
+
+        # Car_Hacking_Challenge_Dataset_rev20Mar2021 数据集
+        # 读 csv文件数据
+        output_ds_dir = can_csv_dir  # 输出数据集的文件夹名字
+        frames = list()  # 可能存在多文件 合并情况
+        dataset_file_suffix = '_'  # 数据集文件的前缀
+        if args.dataset_name == 'Car_Hacking_Challenge_Dataset_rev20Mar2021':
+            for i in args.ds:  # 遍历完 动态 和 静态
+                read_can_csv_dir_suffix = can_csv_dir + '_' + i
+                output_ds_dir += '_' + i
+                dataset_file_suffix += i + '_'
+                for j in args.csv_num:
+                    read_can_csv_dir = read_can_csv_dir_suffix + '_' + str(j) + '.csv'
+                    output_ds_dir += '_' + str(j)
+                    dataset_file_suffix += str(j) + '_'
+                    frames.append(pd.read_csv(read_can_csv_dir, usecols=col_names))
+        self.df = pd.concat(frames)  # 得到全部数据
+
         print(f'全部报文长度为: {len(self.df)}')
-        print(f'共产生 {len(self.df)/fixed_len} 个图数据')
-        # output_ds_dir = os.path.dirname(can_csv_dir)  # 放在 与 原始csv 同路径下
-        self.output_name_suffix = os.path.dirname(can_csv_dir) + '/' + os.path.basename(os.path.splitext(can_csv_dir)[0])
+        print(f'共产生 {int(len(self.df)/fixed_len)} 个图数据')
+        output_ds_dir = output_ds_dir + '_dataset/'  # 放在 与 原始csv 同路径下
+        # 若 数据文件夹 不存在 则新建
+        if not os.path.exists(output_ds_dir):
+            os.makedirs(output_ds_dir)
+
+        # print('###')
+        # print(output_ds_dir)
+        # print(os.path.basename(can_csv_dir))
+        # print(dataset_file_suffix[:-1])
+        self.output_name_suffix = output_ds_dir + os.path.basename(can_csv_dir) + dataset_file_suffix + str(args.gs)
 
     def get_a(self):
 
@@ -172,6 +202,7 @@ class OnlyGraphData:
         print(f'graph_label文件写入完毕 共 {graph_num+1} 个图')
         f.close()
 
+        return  self.output_name_suffix  # 返回构造的数据集的目录
 
 if __name__ == '__main__':
     csv_dir = '/Users/aaron/PycharmProjects/DynamicCANGraphLen/graphModel/data/Car_Hacking_Challenge_Dataset_rev20Mar2021/0_Preliminary/0_Training/Pre_train_D_0.csv'

@@ -7,7 +7,7 @@ import hiddenlayer as hl
 
 
 # 单独训练 图网络的 训练函数
-def train(history, canvas, dataset, model, args, same_feat=True, val_dataset=None, test_dataset=None,
+def train(data_out_dir, history, canvas, dataset, model, args, same_feat=True, val_dataset=None, test_dataset=None,
           mask_nodes=True, log_dir=None, device='cpu'):
     # writer_batch_idx = [0, 3, 6, 9]
 
@@ -144,6 +144,8 @@ def train(history, canvas, dataset, model, args, same_feat=True, val_dataset=Non
                     f.write('Best val result: ' + str(best_val_result) + '\n')
 
         end_time = time.time()
+        model_name = args.pool_sizes + '_' + str(args.gs) + '.pth'
+        torch.save(model.state_dict(), data_out_dir + model_name)
     return model, val_accs, test_accs, best_val_result
 
 
