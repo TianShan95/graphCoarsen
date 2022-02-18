@@ -129,7 +129,7 @@ def read_graphfile(dataset_suffix, max_nodes=None):
         # relabeling
         mapping = {}
         it = 0
-        if float(nx.__version__) < 2.0:
+        if float((nx.__version__)[:3]) < 2.0:
             for n in G.nodes():
                 mapping[n] = it
                 it += 1

@@ -18,3 +18,5 @@ import os
 print(os.path.basename('Pre_trained'))
 import time
 print(time.time)
+import networkx as nx
+print(float((nx.__version__)[:3]))
