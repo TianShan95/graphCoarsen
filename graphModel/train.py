@@ -164,7 +164,7 @@ def train(data_out_dir, history, canvas, dataset, model, args, same_feat=True, v
         end_time = time.time()
 
     time_mark = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    model_name = time_mark + '_epoch_' + args.num_epochs + '_ps_' + args.pool_sizes + '_gs_' + str(args.gs) + '.pth'
+    model_name = time_mark + '_epoch_' + str(args.num_epochs) + '_ps_' + args.pool_sizes + '_gs_' + str(args.gs) + '.pth'
     torch.save(model.state_dict(), data_out_dir + model_name)
     return model, val_accs, test_accs, best_val_result
 
