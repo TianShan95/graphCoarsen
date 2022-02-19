@@ -95,7 +95,7 @@ def arg_parse():
     parser.add_argument('--csv_num', type=list,
                         help='csv num', default=[1, 2])  # 0 or 1 or 2  # csv文件标号
     parser.add_argument('--gs', type=int,
-                        help='graph size', default=50)
+                        help='graph size', default=200)
 
     parser.add_argument('--regen_dataset', type=bool,
                         help='ReGenerate dataset', default=False)  # 如果图数据集有 就不重新生成数据集 只生成processed数据

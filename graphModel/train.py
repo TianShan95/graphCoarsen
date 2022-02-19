@@ -37,6 +37,7 @@ def train(data_out_dir, history, canvas, dataset, model, args, same_feat=True, v
     val_accs = []
     # sing_epoch_loss_list = []  # 记录每个epoch的loss值 画每个epoch的loss曲线
     # all_loss_list = []  # 记录每个
+    train_start_time = time.time()  # 记录整个训练开始的时间
     for epoch in range(args.num_epochs):
         begin_time = time.time()
         avg_loss = 0.0
@@ -82,7 +83,7 @@ def train(data_out_dir, history, canvas, dataset, model, args, same_feat=True, v
 
                 pool_matrices_dic[ind] = pool_matrices_list
 
-            time2 = time.time()
+            # time2 = time.time() - begin_time # 准备一次数据的时间
 
             ypred,_ = model(h0, adj, adj_pooled_list, batch_num_nodes, batch_num_nodes_list, pool_matrices_dic)
             # else:
@@ -93,7 +94,7 @@ def train(data_out_dir, history, canvas, dataset, model, args, same_feat=True, v
             #     loss = model.loss(ypred, label, adj, batch_num_nodes)
             loss.backward()
 
-            time3 = time.time()
+            # time3 = time.time()  # 一个数据 进行训练的时间
 
             nn.utils.clip_grad_norm(model.parameters(), args.clip)
             optimizer.step()
@@ -116,10 +117,10 @@ def train(data_out_dir, history, canvas, dataset, model, args, same_feat=True, v
                 print(f'step: {batch_idx}, graph_size: {args.gs}, Normalize: {args.normalize}')
             # print(epoch)
 
-        print('epoch 结束')
+        print(f'epoch {epoch} 结束')
 
         avg_loss /= batch_idx + 1
-        elapsed = time.time() - begin_time
+        elapsed = time.time() - begin_time  # 一个 epoch 耗费的时间
         # if writer is not None:
         #     writer.add_scalar('loss/avg_loss', avg_loss, epoch)
         #     if args.linkpred:
@@ -160,12 +161,17 @@ def train(data_out_dir, history, canvas, dataset, model, args, same_feat=True, v
                 f.write('Train_result: ' + str(result) + '\n')
                 f.write('Val result: ' + str(val_result) + '\n')
                 f.write('Best val result: ' + str(best_val_result) + '\n')
+                f.write(f'This Epoch consume time: {str(elapsed)} s')
 
         end_time = time.time()
 
     time_mark = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    model_name = time_mark + '_epoch_' + str(args.num_epochs) + '_ps_' + args.pool_sizes + '_gs_' + str(args.gs) + '.pth'
-    torch.save(model.state_dict(), data_out_dir + model_name)
+    model_para_name = 'para_' + time_mark + '_epoch_' + str(args.num_epochs) + '_ps_' + args.pool_sizes + '_gs_' + str(args.gs) + '.pth'
+    torch.save(model.state_dict(), data_out_dir + model_para_name)  # 保存模型参数
+    model_name = 'model_' + time_mark + '_epoch_' + str(args.num_epochs) + '_ps_' + args.pool_sizes + '_gs_' + str(args.gs) + '.pth'
+    torch.save(model, data_out_dir + model_name)  # 保存 整个模型
+
+    with open(log_out_file, 'a') as f:
+        f.write('train step consume total time: ' + str(time.time()-train_start_time) + 's -----------------------------\n')
+
     return model, val_accs, test_accs, best_val_result
-
-

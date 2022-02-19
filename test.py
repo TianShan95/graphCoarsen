@@ -111,24 +111,32 @@ from matplotlib.ticker import (
 # secax.set_xlabel('angle [rad]')
 # plt.show()
 
-import argparse
+# import argparse
+#
+#
+# def arg_parse():
+#     parser = argparse.ArgumentParser(description='Arguments.')
+#     parser.add_argument('--bmname', dest='bmname',
+#                         help='Name of the benchmark dataset')
+#     parser.add_argument('--max-nodes', dest='max_nodes', type=int,
+#                         help='Maximum number of nodes (ignore graghs with nodes exceeding the number.')
+#     parser.add_argument('--lr', dest='lr', type=float,
+#                         help='Learning rate.')
+#
+#
+#     parser.set_defaults(max_nodes=100,
+#                         feature_type='default',
+#                         )
+#     return parser.parse_args()
+#
+# a = arg_parse()
+# print('max_mode: ', a.max_nodes)
+# print('a: ', a.lr)
 
 
-def arg_parse():
-    parser = argparse.ArgumentParser(description='Arguments.')
-    parser.add_argument('--bmname', dest='bmname',
-                        help='Name of the benchmark dataset')
-    parser.add_argument('--max-nodes', dest='max_nodes', type=int,
-                        help='Maximum number of nodes (ignore graghs with nodes exceeding the number.')
-    parser.add_argument('--lr', dest='lr', type=float,
-                        help='Learning rate.')
+import time
+a = time.time()
+print(time.time())
 
-
-    parser.set_defaults(max_nodes=100,
-                        feature_type='default',
-                        )
-    return parser.parse_args()
-
-a = arg_parse()
-print('max_mode: ', a.max_nodes)
-print('a: ', a.lr)
+time.sleep(5)
+print(type(time.time()-a))
