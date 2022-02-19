@@ -8,17 +8,11 @@ import copy
 
 
 # 单独训练 图网络的 训练函数
-def train(data_out_dir, history, canvas, dataset, model, args, same_feat=True, val_dataset=None, test_dataset=None,
+def train(data_out_dir, log_out_file, history, canvas, dataset, model, args, same_feat=True, val_dataset=None, test_dataset=None,
           mask_nodes=True, log_dir=None, device='cpu'):
     # writer_batch_idx = [0, 3, 6, 9]
-    log_out_file = None
-    if log_dir:
-        log_out_file = log_dir + 'shuffle' + str(args.shuffle) + '.txt'
-        with open(log_out_file, 'a') as f:
-            f.write('Shuffle ' + str(args.shuffle) + '====================================================================================\n')
 
-    optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=args.lr,
-                                 weight_decay=args.weight_decay)
+    optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=args.lr, weight_decay=args.weight_decay)
     iter = 0
     best_val_result = {
         'epoch': 0,

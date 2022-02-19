@@ -35,7 +35,7 @@ def arg_parse():
                         help='Number of graph convolution layers before each pooling')
     parser.add_argument('--nobn', dest='bn', action='store_const',
                         const=False, default=True,
-                        help='Whether batch normalization is used')
+                        help='Whether batch normalization is used')  # batch 归一化
     parser.add_argument('--dropout', dest='dropout', type=float,
                         help='Dropout rate.')
     parser.add_argument('--nobias', dest='bias', action='store_const',
@@ -79,8 +79,8 @@ def arg_parse():
                         help='with test or not', default=0)
     parser.add_argument('--con_final', type=int,
                         help='con_final', default=1)
-    parser.add_argument('--device', type=str,
-                        help='cpu or cuda', default='cpu')
+    # parser.add_argument('--device', type=str,
+    #                     help='cpu or cuda', default='cpu')
 
 
     # 关于 图塌缩操作的 重要参数
