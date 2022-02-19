@@ -5,23 +5,28 @@ import pandas as pd
 import os
 import copy
 import collections
+import logging
 
 
 # 处理 数据集 Car_Hacking_Challenge_Dataset_rev20Mar2021
 class OnlyGraphData:
-    def __init__(self, args, can_csv_dir, fixed_len):
+    def __init__(self, args):
         '''
         :param args:
         :param can_csv_dir: 原始数据的位置 + 原始文件前缀(例如：Pre_train)
         :param fixed_len:
         '''
-        self.fixed_len = fixed_len  # 指定 每个图需要的 can 数据长度
+        # can_csv_dir 是数据集所在文件夹 和 数据集文件前缀 Pre_train
+        can_csv_dir = args.datadir + args.bmname
+        self.fixed_len = args.gs  # 指定 每个图需要的 can 数据长度
         col_names = ['Arbitration_ID', 'Class']
+        dataset_suffix_list = ['A', 'graph_indicator', 'graph_labels', 'node_labels']
 
         # Car_Hacking_Challenge_Dataset_rev20Mar2021 数据集
         # 读 csv文件数据
         output_ds_dir = can_csv_dir  # 输出数据集的文件夹名字
-        frames = list()  # 可能存在多文件 合并情况
+        frames_name = list()  # 可能存在多文件 合并情况
+        frames = list()
         dataset_file_suffix = '_'  # 数据集文件的前缀
         if args.dataset_name == 'Car_Hacking_Challenge_Dataset_rev20Mar2021':
             for i in args.ds:  # 遍历完 动态 和 静态
@@ -32,21 +37,47 @@ class OnlyGraphData:
                     read_can_csv_dir = read_can_csv_dir_suffix + '_' + str(j) + '.csv'
                     output_ds_dir += '_' + str(j)
                     dataset_file_suffix += str(j) + '_'
-                    frames.append(pd.read_csv(read_can_csv_dir, usecols=col_names))
-        self.df = pd.concat(frames)  # 得到全部数据
+                    # frames.append(pd.read_csv(read_can_csv_dir, usecols=col_names))
+                    # 把文件名 存起来
+                    frames_name.append(copy.deepcopy(read_can_csv_dir))
 
-        print(f'全部报文长度为: {len(self.df)}')
-        print(f'共产生 {int(len(self.df)/fixed_len)} 个图数据')
-        output_ds_dir = output_ds_dir + '_dataset/'  # 放在 与 原始csv 同路径下
-        # 若 数据文件夹 不存在 则新建
-        if not os.path.exists(output_ds_dir):
+        # 判断文件夹 是否存在
+        output_ds_dir = output_ds_dir + '_dataset/'  # 输出数据集路径 放在 与 原始csv 同路径下
+        self.output_name_suffix = output_ds_dir + os.path.basename(can_csv_dir) + dataset_file_suffix + str(args.gs)  # 生成数据集的文件名前缀
+
+        regen = False  # 是否需要重新生成数据集
+        if os.path.exists(output_ds_dir):
+            for d_suffix in dataset_suffix_list:
+                if os.path.isfile(self.output_name_suffix + '_' + d_suffix + '.txt'):
+                    continue
+                else:
+                    regen = True
+                    break
+        else:
             os.makedirs(output_ds_dir)
+            regen = True
+        # 需要重新生成
+        if regen:
+            print('数据集不存在 正在构造数据集 ...')
+            for csv_file in frames_name:
+                frames.append(pd.read_csv(csv_file, usecols=col_names))
+            self.df = pd.concat(frames)  # 得到全部数据
 
-        # print('###')
-        # print(output_ds_dir)
-        # print(os.path.basename(can_csv_dir))
-        # print(dataset_file_suffix[:-1])
-        self.output_name_suffix = output_ds_dir + os.path.basename(can_csv_dir) + dataset_file_suffix + str(args.gs)
+            # 配置 log 文件 输出关键信息到 log 文件
+            LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
+            DATE_FORMAT = "%m/%d/%Y %H:%M:%S %p"
+            # 数据集生成日志文件
+            logging.basicConfig(filename=self.output_name_suffix + '_DSGenerate.log', level=logging.DEBUG, format=LOG_FORMAT, datefmt=DATE_FORMAT)
+            logging.info('\n' + '==='*10)
+            logging.info(f'数据集前缀 {self.output_name_suffix}')
+            logging.info(f'每个图的报文长度为 {self.fixed_len} 帧')
+            logging.info(f'全部报文长度为 {len(self.df)} 帧')
+            logging.info(f'共产生 {int(len(self.df)/args.gs)} 个图数据')
+            # 调用数据生成
+            self.get_a()
+        else:
+            print('数据集存在 若重新生成请设置相应参数')
+
 
     def get_a(self):
 
@@ -60,6 +91,8 @@ class OnlyGraphData:
         # 存放 每个图的 十六进制ID 和 十进制编号的 字典 列表
         # 列表每个元素 代表了一个图的 十六进制ID 和 十进制编号的 对应关系
         hex2dec_dict_list = list()
+        # 记录每个图的节点个数
+        record_every_graph_node_num = list()
         # print('###')
         # print(len(can_id_list))
         # 同一个图内 ID相同 转换到的 十进制(节点编号) 也相同
@@ -82,12 +115,24 @@ class OnlyGraphData:
             # 文件读取完成 则退出 while循环
             if read_done:
                 break
+
+            # 记录每个图的节点个数
+            record_every_graph_node_num.append(len(hex2dec_dict))
             # 读取完一个 图数据 把读取到的对应字典加入 列表
             hex2dec_dict_list.append(copy.deepcopy(hex2dec_dict))
             # 清空字典
             hex2dec_dict.clear()
             # 进行下一个图的 遍历
             graph_num += 1
+
+
+        # 输出 全部报文 共产生多少个不同编号的节点
+        logging.info(f'全部报文共产生 {sum(record_every_graph_node_num)} 个不同编号节点')
+        # 输出节点最多/最少图的节点个数到 日志文件
+        logging.info(f'最少节点的图的节点个数为 {min(record_every_graph_node_num)}')
+        logging.info(f'最多节点的图的节点个数为 {max(record_every_graph_node_num)}')
+        # 检查转换的 图数据 个数
+        logging.info(f'十六进制ID 转换 十进制 编号 共转换 {len(hex2dec_dict_list)} 个图数据')
 
         # 遍历 hex2dec_dict_list 里的每个字典 并输出文件
         # 每个字典的 键值(编号) 都应该是 递增 1 的
@@ -106,13 +151,18 @@ class OnlyGraphData:
         # 遍历 全部数据 得到 CAN ID 和 节点标签的对应字典 键名：十六进制 字符串型 CAN ID 键值：十进制 int 型 节点标签
         with open(self.output_name_suffix+'_node_labels.txt', 'w+') as f:
             node_label_dict = collections.OrderedDict()
-            for i in can_id_list:  # 遍历每条数据的 ID
+            # 得到每个报文ID 对应的 节点标签 节点标签从1开始
+            for i in can_id_list:  # 遍历每帧报文数据的 ID
                 if i not in node_label_dict.keys():
                     node_label_dict[i] = len(node_label_dict) + 1
+            # 遍历每个图 根据节点编号和ID的对应关系 把里面的节点 都加上标签
             for graph_nodes_dic in hex2dec_dict_list:  # 遍历每个图
                 for node_num in graph_nodes_dic:  # 遍历图里的 节点编号 和 十六进制CAN ID 对；根据CAN ID 来写对应 的 节点标签
                     f.write(str(node_label_dict[node_num]) + '\n')
         f.close()
+
+        # 输出 共有 多少种不同的节点标签
+        logging.info(f'全部报文共有 {len(node_label_dict)} 种不同的图标签')
 
         # 检验步骤
         # 输出 十六进制报文ID 和 节点标签的对应关系
@@ -128,6 +178,7 @@ class OnlyGraphData:
         graph_num = 0  # 遍历到的图的 位置
         graph_adj_list = list()  # 储存全部图的 连接边 每个元素表示一个图的连接关系
         adj_list = list()  # 图的边 每个元素是一个元祖 表示一条边
+        len_adj_list = list()  # 记录每个图的边的个数
         read_done = False
         while True:
             for i in range(self.fixed_len):  # 逐个图 遍历 节点的连接关系
@@ -159,6 +210,8 @@ class OnlyGraphData:
             # 文件读取完成 则退出 while循环
             if read_done:
                 break
+            # 把每个图的 边个数 记录下来
+            len_adj_list.append(len(adj_list))
             # 读取完一个 图数据 把读取到的边列表 加入 列表
             # print(f'adj_list: \n{adj_list}')
             graph_adj_list.append(copy.deepcopy(adj_list))
@@ -166,6 +219,13 @@ class OnlyGraphData:
             adj_list.clear()
             # 进行下一个图的 遍历
             graph_num += 1
+
+        # 输出所有图中 共产生了多少条边
+        logging.info(f'所有的图共生成 {sum(len_adj_list)} 条边')
+        # 输出所有图中 边最多/最少的图的边的个数
+        logging.info(f'最少边的图的边有 {min(len_adj_list)} 条')
+        logging.info(f'最多边的图的边有 {max(len_adj_list)} 条')
+
 
         # 写入 边文件
         with open(self.output_name_suffix + '_A.txt', 'w+') as f:
@@ -186,6 +246,8 @@ class OnlyGraphData:
                     f.write(str(graph_index_ + 1) + '\n')
         f.close()
 
+        # 输出 graph_indicator 文件共写入多少个图
+        logging.info(f'graph_indicator 文件共写入 {graph_index_+1} 个图')
 
         # 获得 图标签文件
         # 图标签 正常报文 1 异常报文 2
@@ -199,15 +261,21 @@ class OnlyGraphData:
                         break
                 # 遍历完一个图 写入 文件
                 f.write(str(node_label) + '\n')
-        print(f'graph_label文件写入完毕 共 {graph_num+1} 个图')
+        logging.info(f'graph_label文件写入完毕 共 {graph_num+1} 个图')
+
         f.close()
 
-        return  self.output_name_suffix  # 返回构造的数据集的目录
 
 if __name__ == '__main__':
-    csv_dir = '/Users/aaron/PycharmProjects/DynamicCANGraphLen/graphModel/data/Car_Hacking_Challenge_Dataset_rev20Mar2021/0_Preliminary/0_Training/Pre_train_D_0.csv'
-    p = OnlyGraphData(can_csv_dir=csv_dir, fixed_len=300)
-    p.get_a()
+
+    csv_dir = '/Users/aaron/PycharmProjects/DynamicCANGraphLen/graphModel/data/Car_Hacking_Challenge_Dataset_rev20Mar2021/0_Preliminary/0_Training/'
+    bmname = "Pre_train"
+    csv_dir += bmname
+    from args import arg_parse
+
+    args = arg_parse()
+    p = OnlyGraphData(args, can_csv_dir=csv_dir, fixed_len=args.gs)
+    # p.get_a()
 
     # # 查看 _A 文件
     # df_a = pd.read_csv('/Users/aaron/PycharmProjects/DynamicCANGraphLen/graphModel/data/Car_Hacking_Challenge_Dataset_rev20Mar2021/0_Preliminary/0_Training/D_1_A.txt')

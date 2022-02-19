@@ -4,12 +4,18 @@ from torch.autograd import Variable
 import torch.nn as nn
 from graphModel.evaluate import evaluate
 import hiddenlayer as hl
+import copy
 
 
 # 单独训练 图网络的 训练函数
 def train(data_out_dir, history, canvas, dataset, model, args, same_feat=True, val_dataset=None, test_dataset=None,
           mask_nodes=True, log_dir=None, device='cpu'):
     # writer_batch_idx = [0, 3, 6, 9]
+    log_out_file = None
+    if log_dir:
+        log_out_file = log_dir + 'shuffle' + str(args.shuffle) + '.txt'
+        with open(log_out_file, 'a') as f:
+            f.write('Shuffle ' + str(args.shuffle) + '====================================================================================\n')
 
     optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=args.lr,
                                  weight_decay=args.weight_decay)
@@ -29,6 +35,8 @@ def train(data_out_dir, history, canvas, dataset, model, args, same_feat=True, v
     test_accs = []
     test_epochs = []
     val_accs = []
+    # sing_epoch_loss_list = []  # 记录每个epoch的loss值 画每个epoch的loss曲线
+    # all_loss_list = []  # 记录每个
     for epoch in range(args.num_epochs):
         begin_time = time.time()
         avg_loss = 0.0
@@ -91,6 +99,13 @@ def train(data_out_dir, history, canvas, dataset, model, args, same_feat=True, v
             optimizer.step()
             iter += 1
             avg_loss += loss
+            # sing_epoch_loss_list.append(copy.deepcopy(loss))  # 记录下每个 loss
+
+            # 记录 loss
+            if log_out_file:
+                with open(log_out_file, 'a') as f:
+                    f.write('Epoch: ' + str(epoch) + '-----------------------------\n')
+                    f.write('loss: ' + str(loss) + '\n')
 
             # 训练时 实时显示 loss 变化曲线
 
@@ -102,6 +117,7 @@ def train(data_out_dir, history, canvas, dataset, model, args, same_feat=True, v
             # print(epoch)
 
         print('epoch 结束')
+
         avg_loss /= batch_idx + 1
         elapsed = time.time() - begin_time
         # if writer is not None:
@@ -113,6 +129,7 @@ def train(data_out_dir, history, canvas, dataset, model, args, same_feat=True, v
         print('正在评估在训练数据上的精度')
         result = evaluate(dataset, model, args, name='Train', max_num_examples=100, device=device)
         eval_time2 = time.time()
+        # 在训练集上的精度
         train_accs.append(result['acc'])
         train_epochs.append(epoch)
         if val_dataset is not None:
@@ -131,22 +148,24 @@ def train(data_out_dir, history, canvas, dataset, model, args, same_feat=True, v
         if test_dataset is not None:
             test_epochs.append(test_result['epoch'])
             test_accs.append(test_result['acc'])
-        if epoch % 50 == 0:
-            print('Epoch: ', epoch, '----------------------------------')
-            print('Train_result: ', result)
-            print('Val result: ', val_result)
-            print('Best val result', best_val_result)
+        # if epoch % 50 == 0:
+        print('Epoch: ', epoch, '----------------------------------')
+        print('Train_result: ', result)
+        print('Val result: ', val_result)
+        print('Best val result', best_val_result)
 
-            if log_dir is not None:
-                with open(log_dir, 'a') as f:
-                    f.write('Epoch: ' + str(epoch) + '-----------------------------\n')
-                    f.write('Train_result: ' + str(result) + '\n')
-                    f.write('Val result: ' + str(val_result) + '\n')
-                    f.write('Best val result: ' + str(best_val_result) + '\n')
+        if log_out_file:
+            with open(log_out_file, 'a') as f:
+                f.write('Epoch: ' + str(epoch) + '-----------------------------\n')
+                f.write('Train_result: ' + str(result) + '\n')
+                f.write('Val result: ' + str(val_result) + '\n')
+                f.write('Best val result: ' + str(best_val_result) + '\n')
 
         end_time = time.time()
-        model_name = args.pool_sizes + '_' + str(args.gs) + '.pth'
-        torch.save(model.state_dict(), data_out_dir + model_name)
+
+    time_mark = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    model_name = time_mark + '_epoch_' + args.num_epochs + '_ps_' + args.pool_sizes + '_gs_' + str(args.gs) + '.pth'
+    torch.save(model.state_dict(), data_out_dir + model_name)
     return model, val_accs, test_accs, best_val_result
 
 
