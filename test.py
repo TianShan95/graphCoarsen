@@ -67,7 +67,7 @@
 # print(a)
 
 # import time
-# print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+# print(        f.write('train step consume total time: ' + str(time.time()-train_start_time) + 's -----------------------------\n'))
 
 # import matplotlib.pyplot as plt
 # axes1 = plt.gca()
@@ -135,8 +135,10 @@ from matplotlib.ticker import (
 
 
 import time
-a = time.time()
-print(time.time())
+# a = time.time()
+# print(time.time())
+#
+# time.sleep(5)
+# print(type(time.time()-a))
 
-time.sleep(5)
-print(type(time.time()-a))
+print(type(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())))

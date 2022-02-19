@@ -173,5 +173,6 @@ def train(data_out_dir, history, canvas, dataset, model, args, same_feat=True, v
 
     with open(log_out_file, 'a') as f:
         f.write('train step consume total time: ' + str(time.time()-train_start_time) + 's -----------------------------\n')
+        f.write('local time: ' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
 
     return model, val_accs, test_accs, best_val_result
