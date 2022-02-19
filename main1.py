@@ -536,11 +536,18 @@ def main():
         device = 'cpu'
     print('Using device-----', device)
 
+    # if torch.cuda.is_available() and prog_args.device == 'cuda':
+    #     device = 'cuda'
+    # else:
+    #     device = 'cpu'
 
-    print('Device: ', device)
-    pred_hidden_dims = [int(i) for i in prog_args.pred_hidden.split('_')]
-    if prog_args.bmname is not None:
-        benchmark_task_val(prog_args, pred_hidden_dims=pred_hidden_dims, feat=prog_args.feat, device=device)
+    # print('Device: ', device)
+    # pred_hidden_dims = [int(i) for i in prog_args.pred_hidden.split('_')]
+    # if prog_args.bmname is not None:
+    #     benchmark_task_val(prog_args, pred_hidden_dims=pred_hidden_dims, feat=prog_args.feat, device=device)
+    time_mark = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+
+    print('model_' + time_mark + '_epoch_' + str(prog_args.num_epochs) + '_ps_' + prog_args.pool_sizes + '_gs_' + str(prog_args.gs) + '_nor_' + str(prog_args.normalize) + '.pth')
 
 
 if __name__ == "__main__":
