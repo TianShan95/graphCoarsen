@@ -57,7 +57,7 @@ def arg_parse():
                         help='number of final pool matrix', default=0)
 
     parser.add_argument('--normalize', type=int,
-                        help='nomrlaized laplacian or not', default=0)
+                        help='nomrlaized laplacian or not', default=0)  # 图塌缩时 影响得到的池化矩阵
     parser.add_argument('--pred_hidden', type=str,
                         help='pred_hidden', default='50')
 
@@ -111,3 +111,8 @@ def arg_parse():
                         bmname='Pre_train',
                         )
     return parser.parse_args()
+
+
+if __name__ == "__main__":
+    p = arg_parse()
+    print(p.bn)
