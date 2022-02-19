@@ -36,7 +36,7 @@ def main():
     log_out_file = log_out_dir + 'graphSize_' + str(prog_args.gs)  + '_Normlize_'+ str(bool(prog_args.normalize)) + '_' + time_mark + '_shuffle_' + str(prog_args.shuffle) + '.txt'
     with open(log_out_file, 'w+') as f:
         f.write('Shuffle ' + str(prog_args.shuffle) + '====================================================================================\n')
-        f.write(prog_args + '\n')
+        f.write(f'{prog_args}\n')
         f.write(f'Device: {device}\n')
         f.write(f'num_classes: {prog_args.num_classes}')
         f.write(f'batch_size: {prog_args.batch_size}')
