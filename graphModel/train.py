@@ -166,9 +166,9 @@ def train(data_out_dir, history, canvas, dataset, model, args, same_feat=True, v
         end_time = time.time()
 
     time_mark = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    model_para_name = 'para_' + time_mark + '_epoch_' + str(args.num_epochs) + '_ps_' + args.pool_sizes + '_gs_' + str(args.gs) + '.pth'
+    model_para_name = 'para_' + time_mark + '_epoch_' + str(args.num_epochs) + '_ps_' + args.pool_sizes + '_gs_' + str(args.gs) + '_nor_' + str(args.normalize) + '.pth'
     torch.save(model.state_dict(), data_out_dir + model_para_name)  # 保存模型参数
-    model_name = 'model_' + time_mark + '_epoch_' + str(args.num_epochs) + '_ps_' + args.pool_sizes + '_gs_' + str(args.gs) + '.pth'
+    model_name = 'model_' + time_mark + '_epoch_' + str(args.num_epochs) + '_ps_' + args.pool_sizes + '_gs_' + str(args.gs) + '_nor_' + str(args.normalize) + '.pth'
     torch.save(model, data_out_dir + model_name)  # 保存 整个模型
 
     with open(log_out_file, 'a') as f:
