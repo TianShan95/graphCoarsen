@@ -56,8 +56,7 @@ def arg_parse():
     parser.add_argument('--num_pool_final_matrix', type=int,
                         help='number of final pool matrix', default=0)
 
-    parser.add_argument('--normalize', type=int,
-                        help='nomrlaized laplacian or not', default=0)  # 图塌缩时 影响得到的池化矩阵
+
     parser.add_argument('--pred_hidden', type=str,
                         help='pred_hidden', default='50')
 
@@ -82,19 +81,32 @@ def arg_parse():
                         help='con_final', default=1)
     parser.add_argument('--device', type=str,
                         help='cpu or cuda', default='cpu')
-    parser.add_argument('--gs', type=int,
-                        help='graph size', default=300)
-    parser.add_argument('--regen_dataset', type=bool,
-                        help='ReGenerate dataset', default=False)  # 如果图数据集有 就不重新生成数据集 只生成processed数据
+
+
+    # 关于 图塌缩操作的 重要参数
+    parser.add_argument('--normalize', type=int,
+                        help='nomrlaized laplacian or not', default=1)  # 图塌缩时 影响得到的池化矩阵
+
+
+    # 使用 Car_Hacking_Challenge_Dataset_rev20Mar2021 数据集
+    # 生成数据集需要修改的参数
     parser.add_argument('--ds', type=list,
                         help='dynamic or static', default=['D'])  # D or S 车辆动态报文 或者 车辆静止报文
     parser.add_argument('--csv_num', type=list,
-                        help='csv num', default=[0])  # 0 or 1 or 2  # csv文件标号
+                        help='csv num', default=[1, 2])  # 0 or 1 or 2  # csv文件标号
+    parser.add_argument('--gs', type=int,
+                        help='graph size', default=50)
+
+    parser.add_argument('--regen_dataset', type=bool,
+                        help='ReGenerate dataset', default=False)  # 如果图数据集有 就不重新生成数据集 只生成processed数据
     parser.add_argument('--dataset_name', type=str,
                         help='dynamic or static', default='Car_Hacking_Challenge_Dataset_rev20Mar2021')  # 0 or 1 or 2
+
+
+
     parser.set_defaults(max_nodes=100,
                         feature_type='default',
-                        datadir='../../data/Car_Hacking_Challenge_Dataset_rev20Mar2021/0_Preliminary/0_Training/',
+                        datadir='../data/Car_Hacking_Challenge_Dataset_rev20Mar2021/0_Preliminary/0_Training/',
                         lr=0.001,
                         clip=2.0,
                         batch_size=64,

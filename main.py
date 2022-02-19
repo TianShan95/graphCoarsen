@@ -310,6 +310,7 @@ def benchmark_task_val(args, feat='node-label', pred_hidden_dims=[50], device='c
     data_out_dir = data_out_dir + 'processed/ps_' + args.pool_sizes
     # 标记 邻接矩阵是否 拉普拉斯 归一化
     data_out_dir = data_out_dir + '_nor_' + str(bool(args.normalize)) + '_' + str(args.gs) + '/'
+    print(f'查找数据集的文件位置是 {data_out_dir}')
     # 若 数据文件夹 不存在 则新建
     if not os.path.exists(data_out_dir):
         os.makedirs(data_out_dir)
@@ -375,80 +376,80 @@ def benchmark_task_val(args, feat='node-label', pred_hidden_dims=[50], device='c
             pickle.dump(graphs_list, f)
         print('Dataset dumped!')
 
-    # 获取 图特征标识
-    # if feat == 'node-feat' and 'feat_dim' in graphs[0].graph:
-    #     print('Using node features')
-    #     input_dim = graphs[0].graph['feat_dim']
-    # elif feat == 'node-label' and 'label' in graphs[0].nodes[0]:
-    print('Using node labels')
-    # 使用节点标签作为图特征
-    for G in graphs:
-        for u in G.nodes():
-            G.nodes[u]['feat'] = np.array(G.nodes[u]['label'])
-    # else:
-    #     print('Using constant labels')
-    #     featgen_const = featgen.ConstFeatureGen(np.ones(args.input_dim, dtype=float))
-    #     for G in graphs:
-    #         featgen_const.gen_node_features(G)
-
-
-
-    total_test_ac = 0
-    total_test_best_ac = 0
-    total_best_val_ac = 0
-    for i in range(10):
-        # 随机打乱的种子
-        if i == args.shuffle:
-
-            # 得到数据集
-            if args.with_test:
-                train_dataset, val_dataset, test_dataset, max_num_nodes, input_dim = \
-                        prepare_data(graphs, graphs_list, args, test_graphs=None, max_nodes=args.max_nodes, seed=i)
-            else:
-                train_dataset, val_dataset, test_dataset, max_num_nodes, input_dim = \
-                    prepare_data(graphs, graphs_list, args, test_graphs=[], max_nodes=args.max_nodes, seed=i)
-
-
-            # out_dir = args.bmname + '/tar_' + '_graphSize_' +str(args.gs) + str(args.train_ratio) + '_ter_' + str(args.test_ratio) + '/'   +  'num_shuffle' + str(args.num_shuffle)  + '/' +  'numconv_' + str(args.num_gc_layers) + '_dp_' + str(args.dropout) + '_wd_' + str(args.weight_decay) + '_b_' + str(args.batch_size) + '_hd_' + str(args.hidden_dim) + '_od_' + str(args.output_dim)  + '_ph_' + str(args.pred_hidden) + '_lr_' + str(args.lr)  + '_concat_' + str(args.concat)
-            # out_dir = out_dir + '_ps_' + '_graphSize_' +str(args.gs) + args.pool_sizes  + '_np_' + str(args.num_pool_matrix) + '_nfp_' + str(args.num_pool_final_matrix) + '_norL_' + str(args.normalize)  + '_mask_' + str(args.mask) + '_ne_' + args.norm  + '_cf_' + str(args.con_final)
-
-            # results_out_dir = args.out_dir + '/'  + args.bmname + '_graphSize_' +str(args.gs) + '/with_test' + str(args.with_test) +  '/using_feat_' + args.feat + '/no_val_results/with_shuffles/' + out_dir + '/'
-            # log_out_dir = args.out_dir  + '/' + args.bmname + '_graphSize_' + str(args.gs) + '/with_test' + str(args.with_test) + '/using_feat_' + args.feat + '/no_val_logs/with_shuffles/'+out_dir + '/'
-
-            time_mark = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-            # results_out_dir = args.out_dir + '/' + time_mark + '_result'
-            log_out_dir = args.out_dir + '/' + time_mark + '_log'
-
-            # if not os.path.exists(results_out_dir):
-            #     os.makedirs(results_out_dir, exist_ok=True)
-            if not os.path.exists(log_out_dir):
-                os.makedirs(log_out_dir, exist_ok=True)
-            #
-            # results_out_file = results_out_dir + 'shuffle' + str(args.shuffle) + '.txt'
-            # log_out_file = log_out_dir + 'shuffle' + str(args.shuffle) + '.txt'
-            # results_out_file_2 = results_out_dir + 'test_shuffle' + str(args.shuffle) + '.txt'
-            # val_out_file = results_out_dir + 'val_result' + str(args.shuffle) + '.txt'
-            # print(results_out_file)
-
-            # with open(log_out_file, 'a') as f:
-            #     f.write('Shuffle ' +str(i) + '====================================================================================\n')
-
-            pool_sizes = [int(i) for i in args.pool_sizes.split('_')]
-
-            model = encoders.WavePoolingGcnEncoder(input_dim, args.hidden_dim, args.output_dim, args.num_classes, args.num_gc_layers, args.num_pool_matrix, args.num_pool_final_matrix,pool_sizes =  pool_sizes, pred_hidden_dims = pred_hidden_dims, concat = args.concat,bn=args.bn, dropout=args.dropout, mask = args.mask,args=args, device=device)
-
-            history = hl.History()
-            canvas = hl.Canvas()
-            # 把训练好的模型 保存到训练的数据集文件夹内 例如 Pre_train_D_1_2_processed/ps_10_nor_False_50
-            # 模型名字里写入被训练的 epoch 数
-            if args.with_test:
-                _, val_accs, test_accs, best_val_result = train(data_out_dir, history, canvas, train_dataset, model, args, val_dataset=val_dataset, test_dataset=test_dataset,
-                 log_dir = log_out_dir, device=device)
-            else:
-                _, val_accs, test_accs, best_val_result = train(data_out_dir, history, canvas, train_dataset, model, args, val_dataset=val_dataset, test_dataset=None,
-                 log_dir = log_out_dir, device=device)
-
-            print('Shuffle ', i, '--------- best val result', best_val_result )
+    # # 获取 图特征标识
+    # # if feat == 'node-feat' and 'feat_dim' in graphs[0].graph:
+    # #     print('Using node features')
+    # #     input_dim = graphs[0].graph['feat_dim']
+    # # elif feat == 'node-label' and 'label' in graphs[0].nodes[0]:
+    # print('Using node labels')
+    # # 使用节点标签作为图特征
+    # for G in graphs:
+    #     for u in G.nodes():
+    #         G.nodes[u]['feat'] = np.array(G.nodes[u]['label'])
+    # # else:
+    # #     print('Using constant labels')
+    # #     featgen_const = featgen.ConstFeatureGen(np.ones(args.input_dim, dtype=float))
+    # #     for G in graphs:
+    # #         featgen_const.gen_node_features(G)
+    #
+    #
+    #
+    # total_test_ac = 0
+    # total_test_best_ac = 0
+    # total_best_val_ac = 0
+    # for i in range(10):
+    #     # 随机打乱的种子
+    #     if i == args.shuffle:
+    #
+    #         # 得到数据集
+    #         if args.with_test:
+    #             train_dataset, val_dataset, test_dataset, max_num_nodes, input_dim = \
+    #                     prepare_data(graphs, graphs_list, args, test_graphs=None, max_nodes=args.max_nodes, seed=i)
+    #         else:
+    #             train_dataset, val_dataset, test_dataset, max_num_nodes, input_dim = \
+    #                 prepare_data(graphs, graphs_list, args, test_graphs=[], max_nodes=args.max_nodes, seed=i)
+    #
+    #
+    #         # out_dir = args.bmname + '/tar_' + '_graphSize_' +str(args.gs) + str(args.train_ratio) + '_ter_' + str(args.test_ratio) + '/'   +  'num_shuffle' + str(args.num_shuffle)  + '/' +  'numconv_' + str(args.num_gc_layers) + '_dp_' + str(args.dropout) + '_wd_' + str(args.weight_decay) + '_b_' + str(args.batch_size) + '_hd_' + str(args.hidden_dim) + '_od_' + str(args.output_dim)  + '_ph_' + str(args.pred_hidden) + '_lr_' + str(args.lr)  + '_concat_' + str(args.concat)
+    #         # out_dir = out_dir + '_ps_' + '_graphSize_' +str(args.gs) + args.pool_sizes  + '_np_' + str(args.num_pool_matrix) + '_nfp_' + str(args.num_pool_final_matrix) + '_norL_' + str(args.normalize)  + '_mask_' + str(args.mask) + '_ne_' + args.norm  + '_cf_' + str(args.con_final)
+    #
+    #         # results_out_dir = args.out_dir + '/'  + args.bmname + '_graphSize_' +str(args.gs) + '/with_test' + str(args.with_test) +  '/using_feat_' + args.feat + '/no_val_results/with_shuffles/' + out_dir + '/'
+    #         # log_out_dir = args.out_dir  + '/' + args.bmname + '_graphSize_' + str(args.gs) + '/with_test' + str(args.with_test) + '/using_feat_' + args.feat + '/no_val_logs/with_shuffles/'+out_dir + '/'
+    #
+    #         time_mark = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    #         # results_out_dir = args.out_dir + '/' + time_mark + '_result'
+    #         log_out_dir = args.out_dir + '/' + time_mark + '_log'
+    #
+    #         # if not os.path.exists(results_out_dir):
+    #         #     os.makedirs(results_out_dir, exist_ok=True)
+    #         if not os.path.exists(log_out_dir):
+    #             os.makedirs(log_out_dir, exist_ok=True)
+    #         #
+    #         # results_out_file = results_out_dir + 'shuffle' + str(args.shuffle) + '.txt'
+    #         # log_out_file = log_out_dir + 'shuffle' + str(args.shuffle) + '.txt'
+    #         # results_out_file_2 = results_out_dir + 'test_shuffle' + str(args.shuffle) + '.txt'
+    #         # val_out_file = results_out_dir + 'val_result' + str(args.shuffle) + '.txt'
+    #         # print(results_out_file)
+    #
+    #         # with open(log_out_file, 'a') as f:
+    #         #     f.write('Shuffle ' +str(i) + '====================================================================================\n')
+    #
+    #         pool_sizes = [int(i) for i in args.pool_sizes.split('_')]
+    #
+    #         model = encoders.WavePoolingGcnEncoder(input_dim, args.hidden_dim, args.output_dim, args.num_classes, args.num_gc_layers, args.num_pool_matrix, args.num_pool_final_matrix,pool_sizes =  pool_sizes, pred_hidden_dims = pred_hidden_dims, concat = args.concat,bn=args.bn, dropout=args.dropout, mask = args.mask,args=args, device=device)
+    #
+    #         history = hl.History()
+    #         canvas = hl.Canvas()
+    #         # 把训练好的模型 保存到训练的数据集文件夹内 例如 Pre_train_D_1_2_processed/ps_10_nor_False_50
+    #         # 模型名字里写入被训练的 epoch 数
+    #         if args.with_test:
+    #             _, val_accs, test_accs, best_val_result = train(data_out_dir, history, canvas, train_dataset, model, args, val_dataset=val_dataset, test_dataset=test_dataset,
+    #              log_dir = log_out_dir, device=device)
+    #         else:
+    #             _, val_accs, test_accs, best_val_result = train(data_out_dir, history, canvas, train_dataset, model, args, val_dataset=val_dataset, test_dataset=None,
+    #              log_dir = log_out_dir, device=device)
+    #
+    #         print('Shuffle ', i, '--------- best val result', best_val_result )
 
 
 
@@ -529,16 +530,16 @@ def main():
     # writer = None
     # print('Using method: ', prog_args.method)
 
-    # if torch.cuda.is_available():
-    #     device = 'cuda'
-    # else:
-    #     device = 'cpu'
-    # print('Using device-----', device)
-
-    if torch.cuda.is_available() and prog_args.device == 'cuda':
+    if torch.cuda.is_available():
         device = 'cuda'
     else:
         device = 'cpu'
+    print('Using device-----', device)
+
+    # if torch.cuda.is_available() and prog_args.device == 'cuda':
+    #     device = 'cuda'
+    # else:
+    #     device = 'cpu'
 
     print('Device: ', device)
     pred_hidden_dims = [int(i) for i in prog_args.pred_hidden.split('_')]
