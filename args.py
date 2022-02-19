@@ -85,7 +85,7 @@ def arg_parse():
 
     # 关于 图塌缩操作的 重要参数
     parser.add_argument('--normalize', type=int,
-                        help='nomrlaized laplacian or not', default=1)  # 图塌缩时 影响得到的池化矩阵
+                        help='normalized laplacian or not', default=1)  # 图塌缩时 影响得到的池化矩阵
 
 
     # 使用 Car_Hacking_Challenge_Dataset_rev20Mar2021 数据集

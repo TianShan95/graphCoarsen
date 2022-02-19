@@ -90,23 +90,45 @@ from matplotlib.transforms import Transform
 from matplotlib.ticker import (
     AutoLocator, AutoMinorLocator)
 
-fig, ax = plt.subplots(constrained_layout=True)
-x = np.arange(0, 360, 1)
-y = np.sin(2 * x * np.pi / 180)
-ax.plot(x, y)
+# fig, ax = plt.subplots(constrained_layout=True)
+# x = np.arange(0, 360, 1)
+# y = np.sin(2 * x * np.pi / 180)
+# ax.plot(x, y)
+#
+# ax.set_xlabel('angle [degrees]')
+# ax.set_ylabel('signal')
+# ax.set_title('Sine wave')
+#
+#
+# def deg2rad(x):
+#     return x * np.pi / 180
+#
+#
+# def rad2deg(x):
+#     return x * 180 / np.pi
+#
+# secax = ax.secondary_xaxis('top', functions=(deg2rad, rad2deg))
+# secax.set_xlabel('angle [rad]')
+# plt.show()
 
-ax.set_xlabel('angle [degrees]')
-ax.set_ylabel('signal')
-ax.set_title('Sine wave')
+import argparse
 
 
-def deg2rad(x):
-    return x * np.pi / 180
+def arg_parse():
+    parser = argparse.ArgumentParser(description='Arguments.')
+    parser.add_argument('--bmname', dest='bmname',
+                        help='Name of the benchmark dataset')
+    parser.add_argument('--max-nodes', dest='max_nodes', type=int,
+                        help='Maximum number of nodes (ignore graghs with nodes exceeding the number.')
+    parser.add_argument('--lr', dest='lr', type=float,
+                        help='Learning rate.')
 
 
-def rad2deg(x):
-    return x * 180 / np.pi
+    parser.set_defaults(max_nodes=100,
+                        feature_type='default',
+                        )
+    return parser.parse_args()
 
-secax = ax.secondary_xaxis('top', functions=(deg2rad, rad2deg))
-secax.set_xlabel('angle [rad]')
-plt.show()
+a = arg_parse()
+print('max_mode: ', a.max_nodes)
+print('a: ', a.lr)
