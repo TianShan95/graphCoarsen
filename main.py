@@ -37,6 +37,7 @@ def main():
     with open(log_out_file, 'w+') as f:
         f.write('Shuffle ' + str(prog_args.shuffle) + '====================================================================================\n')
         f.write(f'{prog_args}\n')
+        f.write(f'{prog_args.add_log}\n')
         f.write(f'Device: {device}\n')
         f.write(f'num_classes: {prog_args.num_classes}\n')
         f.write(f'batch_size: {prog_args.batch_size}\n')

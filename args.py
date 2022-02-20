@@ -86,6 +86,10 @@ def arg_parse():
     parser.add_argument('--ModelPara_dir', type=str,
                         help='load model para dir', default='')  # 二次训练模型参数 的位置
 
+    # 这句话可以打印到 log 日志
+    parser.add_argument('--add_log', type=str,
+                        help='load model para dir', default='')  # 二次训练模型参数 的位置
+
     # 关于 图塌缩操作的 重要参数
     parser.add_argument('--normalize', type=int,
                         help='normalized laplacian or not', default=1)  # 图塌缩时 影响得到的池化矩阵
