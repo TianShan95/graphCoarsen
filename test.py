@@ -205,5 +205,12 @@ from matplotlib.ticker import (
 # last_char_index = model_path.rfind("model")
 # torch.load(model_path[:last_char_index] + "para" + model_path[last_char_index+match_string_len:], map_location=torch.device('cpu'))
 
-loss = 2.0
-print(f'loss: {loss:.6f}')
+# loss = 2.0
+# print(f'loss: {loss:.6f}')
+# a = 6
+# b = 21
+# print(f'{a:10}')
+# print(f'{b:10}')
+
+a = 'abcabcabaab'
+print(a.count('a'))
