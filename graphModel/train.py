@@ -101,6 +101,7 @@ def train(data_out_dir, log_out_file, history, canvas, dataset, model, args, sam
                 with open(log_out_file, 'a') as f:
                     f.write('Epoch: ' + str(epoch) + '-----------------------------\n')
                     f.write('loss: ' + str(loss) + '\n')
+                    f.close()
 
             # 训练时 实时显示 loss 变化曲线
 
@@ -138,6 +139,13 @@ def train(data_out_dir, log_out_file, history, canvas, dataset, model, args, sam
                 test_result = evaluate(test_dataset, model, args, name='Test', device=device)
                 test_result['epoch'] = epoch
 
+            # 保存在验证集上精度最好的模型
+            time_mark = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+            model_para_name = str(val_result['acc']) + '_better_para_' + time_mark + '_totalEpoch_' + str(args.num_epochs) + '_epoch_' + str(epoch) + '_ps_' + args.pool_sizes + '_gs_' + str(args.gs) + '_nor_' + str(args.normalize) + '.pth'
+            torch.save(model.state_dict(), data_out_dir + model_para_name)  # 保存模型参数
+            model_name = str(val_result['acc']) + '_better_model_' + time_mark + '_totalEpoch_' + str(args.num_epochs) + '_epoch_' + str(epoch) + '_ps_' + args.pool_sizes + '_gs_' + str(args.gs) + '_nor_' + str(args.normalize) + '.pth'
+            torch.save(model, data_out_dir + model_name)  # 保存 整个模型
+
         best_val_epochs.append(best_val_result['epoch'])
         best_val_accs.append(best_val_result['acc'])
         if test_dataset is not None:
@@ -156,17 +164,22 @@ def train(data_out_dir, log_out_file, history, canvas, dataset, model, args, sam
                 f.write('Val result: ' + str(val_result) + '\n')
                 f.write('Best val result: ' + str(best_val_result) + '\n')
                 f.write(f'This Epoch consume time: {str(elapsed)} s')
+                f.close()
 
         end_time = time.time()
 
-    time_mark = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    model_para_name = 'para_' + time_mark + '_epoch_' + str(args.num_epochs) + '_ps_' + args.pool_sizes + '_gs_' + str(args.gs) + '_nor_' + str(args.normalize) + '.pth'
-    torch.save(model.state_dict(), data_out_dir + model_para_name)  # 保存模型参数
-    model_name = 'model_' + time_mark + '_epoch_' + str(args.num_epochs) + '_ps_' + args.pool_sizes + '_gs_' + str(args.gs) + '_nor_' + str(args.normalize) + '.pth'
-    torch.save(model, data_out_dir + model_name)  # 保存 整个模型
+
+        # 每 20 epoch 保存一次模型
+        if epoch % 20 == 0:
+            time_mark = time.strftime("%Y%m%d_%H%M%S", time.localtime())
+            model_para_name = 'para_' + time_mark + '_totalEpoch_' + str(args.num_epochs) + '_epoch_' + str(epoch) + '_ps_' + args.pool_sizes + '_gs_' + str(args.gs) + '_nor_' + str(args.normalize) + '.pth'
+            torch.save(model.state_dict(), data_out_dir + model_para_name)  # 保存模型参数
+            model_name = 'model_' + time_mark + '_totalEpoch_' + str(args.num_epochs) + '_epoch_' + str(epoch) + '_ps_' + args.pool_sizes + '_gs_' + str(args.gs) + '_nor_' + str(args.normalize) + '.pth'
+            torch.save(model, data_out_dir + model_name)  # 保存 整个模型
 
     with open(log_out_file, 'a') as f:
         f.write('train step consume total time: ' + str(time.time()-train_start_time) + 's -----------------------------\n')
         f.write('local time: ' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+        f.close()
 
     return model, val_accs, test_accs, best_val_result

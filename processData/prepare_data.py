@@ -6,7 +6,7 @@ import numpy as np
 
 
 # 该函数 为 单独训练图网络准备数据
-def prepare_data(graphs, graphs_list, args, test_graphs=None, max_nodes=0, seed=0):
+def prepare_data(log_out_file, graphs, graphs_list, args, test_graphs=None, max_nodes=0, seed=0):
     zip_list = list(zip(graphs, graphs_list))
     random.Random(seed).shuffle(zip_list)
     graphs, graphs_list = zip(*zip_list)
@@ -35,11 +35,18 @@ def prepare_data(graphs, graphs_list, args, test_graphs=None, max_nodes=0, seed=
 
     print('Number of graphs: ', len(graphs))
     print('Number of edges: ', sum([G.number_of_edges() for G in graphs]))
-    print('Max, avg, std of graph size: ',
-          max([G.number_of_nodes() for G in graphs]), ', '
-                                                      "{0:.2f}".format(np.mean([G.number_of_nodes() for G in graphs])),
-          ', '
-          "{0:.2f}".format(np.std([G.number_of_nodes() for G in graphs])))
+    print('Max, avg, std of graph size: ', max([G.number_of_nodes() for G in graphs]), ', ' "{0:.2f}".format(np.mean([G.number_of_nodes() for G in graphs])),
+          ', ' "{0:.2f}".format(np.std([G.number_of_nodes() for G in graphs])))
+
+    # 输出信息到log文件
+    with open(log_out_file, 'a') as f:
+        f.write(f'Num training graphs: {len(train_graphs)}; Num validation graphs: {len(val_graphs)}; Num testing graphs: {len(test_graphs)}\n')
+
+        f.write(f'Number of graphs: {len(graphs)}')
+        f.write(f'Number of edges: {sum([G.number_of_edges() for G in graphs])}')
+        f.write(f'Max, avg, std of graph size: {max([G.number_of_nodes() for G in graphs])},' 
+                f'{(np.mean([G.number_of_nodes() for G in graphs])):.2f},' 
+                f'{np.std([G.number_of_nodes() for G in graphs]):.2f}')
 
     test_dataset_loader = []
 

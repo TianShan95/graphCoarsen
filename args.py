@@ -61,7 +61,7 @@ def arg_parse():
                         help='pred_hidden', default='50')
 
     parser.add_argument('--out_dir', type=str,
-                        help='out_dir', default='experiment')
+                        help='out_dir', default='../experiment')
     parser.add_argument('--num_shuffle', type=int,
                         help='total num_shuffle', default=10)
     parser.add_argument('--shuffle', type=int,
@@ -92,7 +92,7 @@ def arg_parse():
     # 生成数据集需要修改的参数
     parser.add_argument('--ds', type=list,
                         help='dynamic or static', default=['D'])  # D or S 车辆动态报文 或者 车辆静止报文
-    parser.add_argument('--csv_num', type=list,
+    parser.add_argument('--csv_num', nargs='+', type=int,
                         help='csv num', default=[1, 2])  # 0 or 1 or 2  # csv文件标号
     parser.add_argument('--gs', type=int,
                         help='graph size', default=200)
@@ -110,7 +110,7 @@ def arg_parse():
                         lr=0.001,
                         clip=2.0,
                         batch_size=64,
-                        num_epochs=20,
+                        num_epochs=100,
                         train_ratio=0.8,
                         test_ratio=0.1,
                         num_workers=0,

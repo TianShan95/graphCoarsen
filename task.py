@@ -49,6 +49,11 @@ def benchmark_task_val(log_out_dir, log_out_file, args, feat='node-label', pred_
     if os.path.isfile(graph_list_file_name) and os.path.isfile(dataset_file_name):
         print('Files exist, reading from stored files....')
         print('Reading file from', data_out_dir)
+        # 输出信息到log文件
+        with open(log_out_file, 'a') as f:
+            f.write(f'Files exist, reading from stored files....')
+            f.write(f'Reading file from{data_out_dir}')
+            f.close()
         with open(dataset_file_name, 'rb') as f:
             # 原始图的文件
             graphs = pickle.load(f)
@@ -132,10 +137,10 @@ def benchmark_task_val(log_out_dir, log_out_file, args, feat='node-label', pred_
             # 得到数据集
             if args.with_test:
                 train_dataset, val_dataset, test_dataset, max_num_nodes, input_dim = \
-                        prepare_data(graphs, graphs_list, args, test_graphs=None, max_nodes=args.max_nodes, seed=i)
+                        prepare_data(log_out_file, graphs, graphs_list, args, test_graphs=None, max_nodes=args.max_nodes, seed=i)
             else:
                 train_dataset, val_dataset, test_dataset, max_num_nodes, input_dim = \
-                    prepare_data(graphs, graphs_list, args, test_graphs=[], max_nodes=args.max_nodes, seed=i)
+                    prepare_data(log_out_file, graphs, graphs_list, args, test_graphs=[], max_nodes=args.max_nodes, seed=i)
 
 
             # out_dir = args.bmname + '/tar_' + '_graphSize_' +str(args.gs) + str(args.train_ratio) + '_ter_' + str(args.test_ratio) + '/'   +  'num_shuffle' + str(args.num_shuffle)  + '/' +  'numconv_' + str(args.num_gc_layers) + '_dp_' + str(args.dropout) + '_wd_' + str(args.weight_decay) + '_b_' + str(args.batch_size) + '_hd_' + str(args.hidden_dim) + '_od_' + str(args.output_dim)  + '_ph_' + str(args.pred_hidden) + '_lr_' + str(args.lr)  + '_concat_' + str(args.concat)
@@ -164,10 +169,10 @@ def benchmark_task_val(log_out_dir, log_out_file, args, feat='node-label', pred_
             # 把训练好的模型 保存到训练的数据集文件夹内 例如 Pre_train_D_1_2_processed/ps_10_nor_False_50
             # 模型名字里写入被训练的 epoch 数
             if args.with_test:
-                _, val_accs, test_accs, best_val_result = train(data_out_dir, log_out_file, history, canvas, train_dataset, model, args, val_dataset=val_dataset, test_dataset=test_dataset,
+                _, val_accs, test_accs, best_val_result = train(log_out_dir, log_out_file, history, canvas, train_dataset, model, args, val_dataset=val_dataset, test_dataset=test_dataset,
                  log_dir = log_out_dir, device=device)
             else:
-                _, val_accs, test_accs, best_val_result = train(data_out_dir, log_out_file, history, canvas, train_dataset, model, args, val_dataset=val_dataset, test_dataset=None,
+                _, val_accs, test_accs, best_val_result = train(log_out_dir, log_out_file, history, canvas, train_dataset, model, args, val_dataset=val_dataset, test_dataset=None,
                  log_dir = log_out_dir, device=device)
 
             print('Shuffle ', i, '--------- best val result', best_val_result )
