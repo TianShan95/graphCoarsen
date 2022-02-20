@@ -195,12 +195,15 @@ from matplotlib.ticker import (
 # new_string = a[:last_char_index] + "para" + a[last_char_index + match_string_len:]
 # print(new_string)
 
-import torch
-
-
-model_path ="/Users/aaron/Downloads/drive-download-20220220T134402Z-001/0.9213085764809903_better_model_2022-02-20 11_43_06_totalEpoch_200_epoch_20_ps_10_gs_300_nor_1.pth"
-model = torch.load(model_path, map_location=torch.device('cpu'))
-print(model)
+# import torch
+#
+#
+# model_path ="/Users/aaron/Downloads/drive-download-20220220T134402Z-001/0.9213085764809903_better_model_2022-02-20 11_43_06_totalEpoch_200_epoch_20_ps_10_gs_300_nor_1.pth"
+# model = torch.load(model_path, map_location=torch.device('cpu'))
+# print(model)
 # match_string_len = len("model")
 # last_char_index = model_path.rfind("model")
 # torch.load(model_path[:last_char_index] + "para" + model_path[last_char_index+match_string_len:], map_location=torch.device('cpu'))
+
+loss = 2.0
+print(f'loss: {loss:.6f}')

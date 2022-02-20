@@ -109,7 +109,7 @@ def train(data_out_dir, log_out_file, history, canvas, dataset, model, args, sam
             # loss_list.append(loss)
             with canvas:
                 canvas.draw_plot(history['train_loss'])
-            print(f'Epoch: {epoch} step: {batch_idx}, loss: {loss}:.8f graph_size: {args.gs}, Normalize: {args.normalize}')
+            print(f'Epoch: {epoch} step: {batch_idx}, loss: {loss:.6f} graph_size: {args.gs}, Normalize: {args.normalize}')
             # print(epoch)
 
 
