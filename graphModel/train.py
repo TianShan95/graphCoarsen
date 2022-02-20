@@ -15,12 +15,15 @@ def train(data_out_dir, log_out_file, history, canvas, dataset, model, args, sam
 
     # 模型保存命名相关
     model_name_add = ''
+    # 放在第一个 gs 位置的数字 表示第一次被训练是的 graph_size 如果是重训的则需要填上重新训练的 graph_size
+    initial_gs = str(args.gs)
     # 模型最初的graphSize和现在要训练的数据的graphSize不一致 或者 名字里有多个 gs 字样 则都在模型名字后面追加 _gs_graphSize(此次图数据的can帧数)
     if args.ModelPara_dir:
-        gs = re.search(r"_gs_(\d+)_nor", args.ModelPara_dir)
+        gs = re.findall(r"_gs_(\d+)_nor", args.ModelPara_dir)
         gs_num = args.ModelPara_dir.count("_gs_")
-        if len(gs.group()) != args.gs or gs_num > 1:
+        if int(gs[0]) != args.gs or gs_num > 1:  # 出现了不只一次 gs
             model_name_add = '_gs_' + str(args.gs)
+            initial_gs = str(gs[0])
 
 
     optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=args.lr, weight_decay=args.weight_decay)
@@ -165,12 +168,12 @@ def train(data_out_dir, log_out_file, history, canvas, dataset, model, args, sam
             # 保存模型参数
             model_para_name = str(format(val_result['acc'], '.6f')) + '_better_para_' + time_mark + '_totalEpoch_' + \
                               str(args.num_epochs) + '_epoch_' + str(epoch) + '_ps_' + args.pool_sizes + '_gs_' + \
-                              str(args.gs) + '_nor_' + str(args.normalize) + model_name_add + '.pth'
+                              initial_gs + '_nor_' + str(args.normalize) + model_name_add + '.pth'
             torch.save(model.state_dict(), data_out_dir + model_para_name)  # 保存模型参数
             # 保存模型
             model_name = str(format(val_result['acc'], '.6f')) + '_better_model_' + time_mark + '_totalEpoch_' + \
                          str(args.num_epochs) + '_epoch_' + str(epoch) + '_ps_' + args.pool_sizes + '_gs_' + \
-                         str(args.gs) + '_nor_' + str(args.normalize) + model_name_add + '.pth'
+                         initial_gs + '_nor_' + str(args.normalize) + model_name_add + '.pth'
             torch.save(model, data_out_dir + model_name)  # 保存 整个模型
 
         best_val_epochs.append(best_val_result['epoch'])
@@ -202,10 +205,10 @@ def train(data_out_dir, log_out_file, history, canvas, dataset, model, args, sam
         if epoch % 20 == 0:
             time_mark = time.strftime("%Y%m%d_%H%M%S", time.localtime())
             model_para_name = 'para_' + time_mark + '_totalEpoch_' + str(args.num_epochs) + '_epoch_' + str(epoch) + \
-                              '_ps_' + args.pool_sizes + '_gs_' + str(args.gs) + '_nor_' + str(args.normalize) + model_name_add + '.pth'
+                              '_ps_' + args.pool_sizes + '_gs_' + initial_gs + '_nor_' + str(args.normalize) + model_name_add + '.pth'
             torch.save(model.state_dict(), data_out_dir + model_para_name)  # 保存模型参数
             model_name = 'model_' + time_mark + '_totalEpoch_' + str(args.num_epochs) + '_epoch_' + str(epoch) + \
-                         '_ps_' + args.pool_sizes + '_gs_' + str(args.gs) + '_nor_' + str(args.normalize) + model_name_add + '.pth'
+                         '_ps_' + args.pool_sizes + '_gs_' + initial_gs + '_nor_' + str(args.normalize) + model_name_add + '.pth'
             torch.save(model, data_out_dir + model_name)  # 保存 整个模型
 
     with open(log_out_file, 'a') as f:

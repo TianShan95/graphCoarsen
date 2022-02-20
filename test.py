@@ -211,6 +211,9 @@ from matplotlib.ticker import (
 # b = 21
 # print(f'{a:10}')
 # print(f'{b:10}')
-
-a = 'abcabcabaab'
-print(a.count('a'))
+import re
+a = "_gs_2131_nor"
+gs = re.findall(r"_gs_(\d+)_nor", a)
+# gs_num = args.ModelPara_dir.count("_gs_")
+# if len(gs.group()) != args.gs or gs_num > 1:
+print(gs[0])
