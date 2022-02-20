@@ -82,6 +82,9 @@ def arg_parse():
     # parser.add_argument('--device', type=str,
     #                     help='cpu or cuda', default='cpu')
 
+    # 关于 图塌缩操作的 重要参数
+    parser.add_argument('--ModelPara_dir', type=str,
+                        help='load model para dir', default='')  # 二次训练模型参数 的位置
 
     # 关于 图塌缩操作的 重要参数
     parser.add_argument('--normalize', type=int,

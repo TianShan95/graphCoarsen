@@ -109,10 +109,10 @@ def train(data_out_dir, log_out_file, history, canvas, dataset, model, args, sam
             # loss_list.append(loss)
             with canvas:
                 canvas.draw_plot(history['train_loss'])
-            print(f'Epoch: {epoch} step: {batch_idx}, loss: {loss} graph_size: {args.gs}, Normalize: {args.normalize}')
+            print(f'Epoch: {epoch} step: {batch_idx}, loss: {loss}:.8f graph_size: {args.gs}, Normalize: {args.normalize}')
             # print(epoch)
 
-        
+
 
         avg_loss /= batch_idx + 1
         print(f'epoch {epoch} 结束 平均loss是 {avg_loss}')
@@ -151,7 +151,7 @@ def train(data_out_dir, log_out_file, history, canvas, dataset, model, args, sam
 
             # 保存在验证集上精度最好的模型
             time_mark = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-            model_para_name = str(val_result['acc']) + '_better_para_' + time_mark + '_totalEpoch_' + str(args.num_epochs) + '_epoch_' + str(epoch) + '_ps_' + args.pool_sizes + '_gs_' + str(args.gs) + '_nor_' + str(args.normalize) + '.pth'
+            model_para_name = str(format(val_result['acc'], '.6f')) + '_better_para_' + time_mark + '_totalEpoch_' + str(args.num_epochs) + '_epoch_' + str(epoch) + '_ps_' + args.pool_sizes + '_gs_' + str(args.gs) + '_nor_' + str(args.normalize) + '.pth'
             torch.save(model.state_dict(), data_out_dir + model_para_name)  # 保存模型参数
             model_name = str(val_result['acc']) + '_better_model_' + time_mark + '_totalEpoch_' + str(args.num_epochs) + '_epoch_' + str(epoch) + '_ps_' + args.pool_sizes + '_gs_' + str(args.gs) + '_nor_' + str(args.normalize) + '.pth'
             torch.save(model, data_out_dir + model_name)  # 保存 整个模型

@@ -9,6 +9,7 @@ import numpy as np
 from processData.prepare_data import prepare_data
 import hiddenlayer as hl
 from graphModel import encoders
+import torch
 
 
 def benchmark_task_val(log_out_dir, log_out_file, args, feat='node-label', pred_hidden_dims=[50], device='cpu'):
@@ -162,7 +163,22 @@ def benchmark_task_val(log_out_dir, log_out_file, args, feat='node-label', pred_
 
             pool_sizes = [int(i) for i in args.pool_sizes.split('_')]
 
+            # # 如果指定了 模型参数路径 则 load 模型和 模型参数
+            # if args.ModelPara_dir:
+            #     # 加载 指定模型
+            #     model = torch.load(args.ModelPara_dir, map_location=torch.device('cpu'))
+            #     # 加载模型参数 因为模型命名和模型参数命名 是把model 改为 para
+            #     # 则把模型路径 字符串 里最后一个 model 字符串 替换为 para
+            #     match_string_len = len("model")
+            #     last_char_index = args.ModelPara_dir.rfind("model")
+            #     model.load_state_dict(torch.load(args.ModelPara_dir[:last_char_index] + "para" + args.ModelPara_dir[last_char_index+match_string_len:], map_location=torch.device('cpu')))
+            # else:
+            #     model = encoders.WavePoolingGcnEncoder(input_dim, args.hidden_dim, args.output_dim, args.num_classes, args.num_gc_layers, args.num_pool_matrix, args.num_pool_final_matrix,pool_sizes =  pool_sizes, pred_hidden_dims = pred_hidden_dims, concat = args.concat,bn=args.bn, dropout=args.dropout, mask = args.mask,args=args, device=device)
+
             model = encoders.WavePoolingGcnEncoder(input_dim, args.hidden_dim, args.output_dim, args.num_classes, args.num_gc_layers, args.num_pool_matrix, args.num_pool_final_matrix,pool_sizes =  pool_sizes, pred_hidden_dims = pred_hidden_dims, concat = args.concat,bn=args.bn, dropout=args.dropout, mask = args.mask,args=args, device=device)
+            match_string_len = len("model")
+            last_char_index = args.ModelPara_dir.rfind("model")
+            model.load_state_dict(torch.load(args.ModelPara_dir[:last_char_index] + "para" + args.ModelPara_dir[last_char_index+match_string_len:], map_location=torch.device('cpu')))
 
             history = hl.History()
             canvas = hl.Canvas()
