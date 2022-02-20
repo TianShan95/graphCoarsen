@@ -109,12 +109,13 @@ def train(data_out_dir, log_out_file, history, canvas, dataset, model, args, sam
             # loss_list.append(loss)
             with canvas:
                 canvas.draw_plot(history['train_loss'])
-            print(f'Epoch: {epoch} step: {batch_idx}, graph_size: {args.gs}, Normalize: {args.normalize}')
+            print(f'Epoch: {epoch} step: {batch_idx}, loss: {loss} graph_size: {args.gs}, Normalize: {args.normalize}')
             # print(epoch)
 
-        print(f'epoch {epoch} 结束')
+        
 
         avg_loss /= batch_idx + 1
+        print(f'epoch {epoch} 结束 平均loss是 {avg_loss}')
         elapsed = time.time() - begin_time  # 一个 epoch 耗费的时间
         # if writer is not None:
         #     writer.add_scalar('loss/avg_loss', avg_loss, epoch)
@@ -136,6 +137,7 @@ def train(data_out_dir, log_out_file, history, canvas, dataset, model, args, sam
         else:
             print(f'无 验证集')
 
+        # 记录在 验证集最好的 精度 epoch 和 loss
         if val_result['acc'] > best_val_result['acc'] - 1e-7:
             best_val_result['acc'] = val_result['acc']
             best_val_result['epoch'] = epoch
@@ -161,18 +163,20 @@ def train(data_out_dir, log_out_file, history, canvas, dataset, model, args, sam
             test_accs.append(test_result['acc'])
         # if epoch % 50 == 0:
         print('Epoch: ', epoch, '----------------------------------')
+        print('avg_loss', avg_loss)
         print('Train_result: ', result)
         print('Val result: ', val_result)
         print('Best val result', best_val_result)
 
-        if log_out_file:
-            with open(log_out_file, 'a') as f:
-                f.write('Epoch: ' + str(epoch) + '-----------------------------\n')
-                f.write('Train_result: ' + str(result) + '\n')
-                f.write('Val result: ' + str(val_result) + '\n')
-                f.write('Best val result: ' + str(best_val_result) + '\n')
-                f.write(f'This Epoch consume time: {str(elapsed)} s')
-                f.close()
+
+        with open(log_out_file, 'a') as f:
+            f.write('Epoch: ' + str(epoch) + '-----------------------------\n')
+            f.write(f'avg_loss {avg_loss}\n')
+            f.write('Train_result: ' + str(result) + '\n')
+            f.write('Val result: ' + str(val_result) + '\n')
+            f.write('Best val result: ' + str(best_val_result) + '\n')
+            f.write(f'This Epoch consume time: {str(elapsed)} s')
+            f.close()
 
         end_time = time.time()
 
