@@ -109,7 +109,7 @@ def train(data_out_dir, log_out_file, history, canvas, dataset, model, args, sam
             # loss_list.append(loss)
             with canvas:
                 canvas.draw_plot(history['train_loss'])
-                print(f'step: {batch_idx}, graph_size: {args.gs}, Normalize: {args.normalize}')
+            print(f'Epoch: {epoch} step: {batch_idx}, graph_size: {args.gs}, Normalize: {args.normalize}')
             # print(epoch)
 
         print(f'epoch {epoch} 结束')
@@ -127,10 +127,15 @@ def train(data_out_dir, log_out_file, history, canvas, dataset, model, args, sam
         eval_time2 = time.time()
         # 在训练集上的精度
         train_accs.append(result['acc'])
+        print(f"在训练集的精度是: {result['acc']}")
         train_epochs.append(epoch)
         if val_dataset is not None:
             val_result = evaluate(val_dataset, model, args, name='Validation', device=device)
             val_accs.append(val_result['acc'])
+            print(f"在验证集的精度是: {val_result['acc']}")
+        else:
+            print(f'无 验证集')
+
         if val_result['acc'] > best_val_result['acc'] - 1e-7:
             best_val_result['acc'] = val_result['acc']
             best_val_result['epoch'] = epoch
@@ -138,6 +143,9 @@ def train(data_out_dir, log_out_file, history, canvas, dataset, model, args, sam
             if test_dataset is not None:
                 test_result = evaluate(test_dataset, model, args, name='Test', device=device)
                 test_result['epoch'] = epoch
+                print(f"在测试集的精度是: {test_result['acc']}")
+            else:
+                print(f'无 测试集')
 
             # 保存在验证集上精度最好的模型
             time_mark = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
