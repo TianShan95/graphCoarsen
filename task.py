@@ -178,9 +178,10 @@ def benchmark_task_val(log_out_dir, log_out_file, args, feat='node-label', pred_
                                                      map_location=torch.device('cpu')))
                 elif device == 'cuda':
                     model = torch.load(args.ModelPara_dir)
+                    print(f'模型路径: {args.ModelPara_dir}')
                     print(f'模型文件是否存在：{os.path.isfile(args.ModelPara_dir)}')
-                    print(args.ModelPara_dir[:last_char_index] + "para" + args.ModelPara_dir[last_char_index + match_string_len:])
-                    print(f'模型参数文件是否存在：{os.path.isfile()}')
+                    print(f'模型参数路径: {args.ModelPara_dir[:last_char_index] + "para" + args.ModelPara_dir[last_char_index + match_string_len:]}')
+                    print(f'模型参数文件是否存在：{os.path.isfile(args.ModelPara_dir[:last_char_index] + "para" + args.ModelPara_dir[last_char_index + match_string_len:])}')
                     print(f'type model {type(model)}')
                     model.load_state_dict(torch.load(args.ModelPara_dir[:last_char_index] + "para" + args.ModelPara_dir[last_char_index + match_string_len:]))
 
