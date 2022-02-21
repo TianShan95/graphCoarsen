@@ -268,13 +268,13 @@ class OnlyGraphData:
 
 if __name__ == '__main__':
 
-    csv_dir = '/Users/aaron/PycharmProjects/DynamicCANGraphLen/graphModel/data/Car_Hacking_Challenge_Dataset_rev20Mar2021/0_Preliminary/0_Training/'
-    bmname = "Pre_train"
-    csv_dir += bmname
+    # csv_dir = '/Users/aaron/Hebut/征稿_图像信息安全_20211130截稿/源程序/图塌缩分类/data/Car_Hacking_Challenge_Dataset_rev20Mar2021/0_Preliminary/0_Training'
+    # bmname = "Pre_train"
+    # csv_dir += bmname
     from args import arg_parse
 
     args = arg_parse()
-    p = OnlyGraphData(args, can_csv_dir=csv_dir, fixed_len=args.gs)
+    p = OnlyGraphData(args)
     # p.get_a()
 
     # # 查看 _A 文件

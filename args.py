@@ -88,7 +88,7 @@ def arg_parse():
 
     # 这句话可以打印到 log 日志
     parser.add_argument('--add_log', type=str,
-                        help='load model para dir', default='')  # 二次训练模型参数 的位置
+                        help='add to log file', default='')  # 二次训练模型参数 的位置
 
     # 关于 图塌缩操作的 重要参数
     parser.add_argument('--normalize', type=int,
@@ -102,7 +102,7 @@ def arg_parse():
     parser.add_argument('--csv_num', nargs='+', type=int,
                         help='csv num', default=[1, 2])  # 0 or 1 or 2  # csv文件标号
     parser.add_argument('--gs', type=int,
-                        help='graph size', default=200)
+                        help='graph size', default=50)
 
     parser.add_argument('--regen_dataset', type=bool,
                         help='ReGenerate dataset', default=False)  # 如果图数据集有 就不重新生成数据集 只生成processed数据
