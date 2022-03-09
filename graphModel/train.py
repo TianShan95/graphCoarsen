@@ -20,10 +20,17 @@ def train(data_out_dir, log_out_file, history, canvas, dataset, model, args, sam
     # 模型最初的graphSize和现在要训练的数据的graphSize不一致 或者 名字里有多个 gs 字样 则都在模型名字后面追加 _gs_graphSize(此次图数据的can帧数)
     if args.ModelPara_dir:
         gs = re.findall(r"_gs_(\d+)_nor", args.ModelPara_dir)
+
+        gs_list = re.findall(r'_gs_(\d+)', args.ModelPara_dir)[1:]  # 这里list 存放了 除了第一个的 gs 参数
+        gs_list += str(args.gs)  # 再加上 本次的 gs
         gs_num = args.ModelPara_dir.count("_gs_")
         if int(gs[0]) != args.gs or gs_num > 1:  # 出现了不只一次 gs
-            model_name_add = '_gs_' + str(args.gs)
-            initial_gs = str(gs[0])
+            initial_gs = str(gs[0])  # 最初的 graphSize
+            # 名字模型 加上 所有训练过的 历史 gs
+            for gs in gs_list:
+                model_name_add += '_gs_' + str(gs)
+
+
 
 
     optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=args.lr, weight_decay=args.weight_decay)
@@ -46,6 +53,9 @@ def train(data_out_dir, log_out_file, history, canvas, dataset, model, args, sam
     # sing_epoch_loss_list = []  # 记录每个epoch的loss值 画每个epoch的loss曲线
     # all_loss_list = []  # 记录每个
     train_start_time = time.time()  # 记录整个训练开始的时间
+
+    print(f"### ### device {device}")
+
     for epoch in range(args.num_epochs):
         begin_time = time.time()
         avg_loss = 0.0

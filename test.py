@@ -217,3 +217,16 @@ gs = re.findall(r"_gs_(\d+)_nor", a)
 # gs_num = args.ModelPara_dir.count("_gs_")
 # if len(gs.group()) != args.gs or gs_num > 1:
 print(gs[0])
+
+
+import torch
+# mode_path = '/Users/aaron/Hebut/征稿_图像信息安全_20211130截稿/源程序/图塌缩分类/graphModelForRl/0.804806_better_model_2022-02-21 11_03_28_totalEpoch_5_epoch_4_ps_10_gs_300_nor_1_gs_50.pth'
+model_path = '/Users/aaron/Hebut/征稿_图像信息安全_20211130截稿/源程序/图塌缩分类/log/drive-download-20220221T024621Z-001/graphSize_300_Normlize_True_20220220_112631_log/0.8443854995579133_better_model_2022-02-20 11_36_25_totalEpoch_200_epoch_0_ps_10_gs_300_nor_1.pth'
+print(torch.load(model_path, map_location=torch.device('cpu')))
+
+
+import os
+# print(os.path.isdir('/Users/aaron/Hebut/征稿_图像信息安全_20211130截稿/源程序/图塌缩分类/log/experiment_b4/graphSize_200_Normlize_True_20220220_190056_log'))
+# print(os.path.isfile("/Users/aaron/Hebut/征稿_图像信息安全_20211130截稿/源程序/图塌缩分类/log/experiment_b4/graphSize_200_Normlize_True_20220220_190056_log/0.9115566037735849_better_model_2022-02-20 20:10:45_totalEpoch_200_epoch_85_ps_10_gs_200_nor_1.pth"))
+#
+# print(os.listdir("/Users/aaron/Hebut/征稿_图像信息安全_20211130截稿/源程序/图塌缩分类/log/experiment_b4/graphSize_200_Normlize_True_20220220_190056_log"))

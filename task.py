@@ -169,20 +169,23 @@ def benchmark_task_val(log_out_dir, log_out_file, args, feat='node-label', pred_
                 # 则把模型路径 字符串 里最后一个 model 字符串 替换为 para
                 match_string_len = len("model")
                 last_char_index = args.ModelPara_dir.rfind("model")
+
+                print(f'模型路径: {args.ModelPara_dir}')
+                print(f'模型文件是否存在：{os.path.isfile(args.ModelPara_dir)}')
+                print(f'模型参数路径: {args.ModelPara_dir[:last_char_index] + "para" + args.ModelPara_dir[last_char_index + match_string_len:]}')
+                print(f'模型参数文件是否存在：{os.path.isfile(args.ModelPara_dir[:last_char_index] + "para" + args.ModelPara_dir[last_char_index + match_string_len:])}')
                 # 加载 指定模型
                 # 加载在 cuda 上训练的 模型
                 if device == 'cpu':
+                    print('进入cpu设备选项')
                     model = torch.load(args.ModelPara_dir, map_location=torch.device('cpu'))
-                    print(args.ModelPara_dir[:last_char_index] + "para" + args.ModelPara_dir[last_char_index + match_string_len:])
+
+
                     model.load_state_dict(torch.load(args.ModelPara_dir[:last_char_index] + "para" + args.ModelPara_dir[last_char_index+match_string_len:],
                                                      map_location=torch.device('cpu')))
                 elif device == 'cuda':
                     model = torch.load(args.ModelPara_dir)
-                    print(f'模型路径: {args.ModelPara_dir}')
-                    print(f'模型文件是否存在：{os.path.isfile(args.ModelPara_dir)}')
-                    print(f'模型参数路径: {args.ModelPara_dir[:last_char_index] + "para" + args.ModelPara_dir[last_char_index + match_string_len:]}')
-                    print(f'模型参数文件是否存在：{os.path.isfile(args.ModelPara_dir[:last_char_index] + "para" + args.ModelPara_dir[last_char_index + match_string_len:])}')
-                    print(f'type model {type(model)}')
+
                     model.load_state_dict(torch.load(args.ModelPara_dir[:last_char_index] + "para" + args.ModelPara_dir[last_char_index + match_string_len:]))
 
             else:

@@ -43,7 +43,7 @@ def read_graphfile(dataset_suffix, max_nodes=None):
                 node_labels += [int(line) - 1]
         # 得到共有多少中节点标签
         num_unique_node_labels = max(node_labels) + 1
-        print(f'共有 {num_unique_node_labels} 个节点标签')
+        print(f'共有 {num_unique_node_labels} 种节点标签')
     except IOError:
         print('No node labels')
 
@@ -126,7 +126,7 @@ def read_graphfile(dataset_suffix, max_nodes=None):
         # if len(node_attrs) > 0:
         #     G.graph['feat_dim'] = node_attrs[0].shape[0]
 
-        # relabeling
+        # relabeling 编号
         mapping = {}
         it = 0
         if float((nx.__version__)[:3]) < 2.0:
