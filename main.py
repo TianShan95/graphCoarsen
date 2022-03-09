@@ -29,7 +29,7 @@ def main():
 
     # 定义 并创建 此次实验的 log 文件夹
     time_mark = time.strftime("%Y%m%d_%H%M%S", time.localtime())
-    log_out_dir = prog_args.out_dir + '/' + 'graphSize_' + str(prog_args.gs)  + '_Normlize_'+ str(bool(prog_args.normalize)) + '_' + time_mark + '_log/'
+    log_out_dir = prog_args.out_dir + '/' + 'graphSize_' + str(prog_args.gs)  + '_Normlize_'+ str(bool(prog_args.normalize))+'_concat_'+str(prog_args.concat) + '_' + time_mark + '_log/'
     if not os.path.exists(log_out_dir):
         os.makedirs(log_out_dir, exist_ok=True)
     # 定义 并创建 log 文件
