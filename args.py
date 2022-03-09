@@ -84,7 +84,7 @@ def arg_parse():
 
     # 关于 图塌缩操作的 重要参数
     parser.add_argument('--ModelPara_dir', type=str,
-                        help='load model para dir', default='/Users/aaron/Hebut/征稿_图像信息安全_20211130截稿/源程序/图塌缩分类/log/experiment_b4/graphSize_200_Normlize_True_20220220_190056_log/0.84375_better_model_2022-02-20 19:03:26_totalEpoch_200_epoch_1_ps_10_gs_200_nor_1.pth')  # 二次训练模型参数 的位置
+                        help='load model para dir', default='')  # 二次训练模型参数 的位置
 
     # 这句话可以打印到 log 日志
     parser.add_argument('--add_log', type=str,
