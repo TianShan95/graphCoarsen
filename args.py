@@ -109,9 +109,6 @@ def arg_parse():
     parser.add_argument('--dataset_name', type=str,
                         help='dynamic or static', default='Car_Hacking_Challenge_Dataset_rev20Mar2021')  # 0 or 1 or 2
 
-    # 训练相关
-    parser.add_argument('--dataset_name', type=str,
-                        help='dynamic or static', default='Car_Hacking_Challenge_Dataset_rev20Mar2021')  # 0 or 1 or 2
 
     parser.set_defaults(max_nodes=100,
                         feature_type='default',

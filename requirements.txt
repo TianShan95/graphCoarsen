@@ -1,3 +1,7 @@
 hiddenlayer
 networkx
 community
+sklearn
+matplotlib
+ipython
+pandas
