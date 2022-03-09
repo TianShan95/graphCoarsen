@@ -33,7 +33,7 @@ def main():
     if not os.path.exists(log_out_dir):
         os.makedirs(log_out_dir, exist_ok=True)
     # 定义 并创建 log 文件
-    log_out_file = log_out_dir + 'graphSize_' + str(prog_args.gs)  + '_Normlize_'+ str(bool(prog_args.normalize)) + '_' + time_mark + '_shuffle_' + str(prog_args.shuffle) + '.txt'
+    log_out_file = log_out_dir + 'graphSize_' + str(prog_args.gs)  + '_Normlize_'+ str(bool(prog_args.normalize)) +'_concat_'+str(prog_args.concat) + '_' + time_mark + '_shuffle_' + str(prog_args.shuffle) + '.txt'
     with open(log_out_file, 'w+') as f:
         f.write('Shuffle ' + str(prog_args.shuffle) + '====================================================================================\n')
         f.write(f'{prog_args}\n')
