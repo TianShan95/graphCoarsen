@@ -200,7 +200,8 @@ class RandGraphData:
                         adj_list.append((hex2decNum_dict_list[graph_num][can_id_list[sum(graph_len_list[:gl_index])+i]], hex2decNum_dict_list[graph_num][can_id_list[sum(graph_len_list[:gl_index])+i+1]]))
 
                 except KeyError:
-                    # print('%%%')
+                    print('%%%')
+                    print(f'i: {i} graph_len: {graph_len}')
                     # 如果最后一个图的数据 不够组成一个图 则舍弃
                     if i == graph_len - 1:
                         continue
