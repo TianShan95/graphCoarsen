@@ -79,6 +79,10 @@ def arg_parse():
                         help='with test or not', default=0)
     parser.add_argument('--con_final', type=int,
                         help='con_final', default=1)
+    parser.add_argument('--seed', type=int,
+                        help='random seed', default=1)
+    parser.add_argument('--randGen', type=bool,
+                        help='random generate graph size', default=False)
     # parser.add_argument('--device', type=str,
     #                     help='cpu or cuda', default='cpu')
 

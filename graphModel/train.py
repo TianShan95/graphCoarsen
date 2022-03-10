@@ -31,8 +31,6 @@ def train(data_out_dir, log_out_file, history, canvas, dataset, model, args, sam
                 model_name_add += '_gs_' + str(gs)
 
 
-
-
     optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=args.lr, weight_decay=args.weight_decay)
     iter = 0
     best_val_result = {
@@ -103,7 +101,7 @@ def train(data_out_dir, log_out_file, history, canvas, dataset, model, args, sam
 
             # time2 = time.time() - begin_time # 准备一次数据的时间
 
-            ypred,_ = model(h0, adj, adj_pooled_list, batch_num_nodes, batch_num_nodes_list, pool_matrices_dic)
+            ypred, _ = model(h0, adj, adj_pooled_list, batch_num_nodes, batch_num_nodes_list, pool_matrices_dic)
             # else:
             #     ypred = model(h0, adj, batch_num_nodes, assign_x=assign_input)
             # if not args.method == 'soft-assign' or not args.linkpred:
@@ -123,8 +121,8 @@ def train(data_out_dir, log_out_file, history, canvas, dataset, model, args, sam
             # 记录 loss
             if log_out_file:
                 with open(log_out_file, 'a') as f:
-                    f.write('Epoch: ' + str(epoch) + '-----------------------------\n')
-                    f.write('loss: ' + str(loss) + '\n')
+                    f.write('\nEpoch: ' + str(epoch) + '-----------------------------\n')
+                    f.write('loss: ' + str(loss.item()) + '\n')
                     f.close()
 
             # 训练时 实时显示 loss 变化曲线

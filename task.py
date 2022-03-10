@@ -2,6 +2,7 @@ from graphModel.train import train
 import os
 import pickle
 from processData.onlyGraphData import OnlyGraphData
+from processData.randGraphData import RandGraphData
 from processData import load_data
 import networkx as nx
 from graphModel.coarsen_pooling_with_last_eigen_padding import Graphs as gp
@@ -66,7 +67,12 @@ def benchmark_task_val(log_out_dir, log_out_file, args, feat='node-label', pred_
         print('No files exist, preprocessing datasets...')
 
         # 生成图数据集
-        p = OnlyGraphData(args)
+        if args.randGen:
+            print('随机生成图大小')
+            p = RandGraphData(args)
+        else:
+            print('生成固定图大小')
+            p = OnlyGraphData(args)
 
         graphs = load_data.read_graphfile(p.output_name_suffix, max_nodes=args.max_nodes)
         print('Data length before filtering: ', len(graphs))
