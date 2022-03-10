@@ -76,14 +76,13 @@ class RandGraphData:
             logging.info(f'全部报文长度为 {len(self.df)} 帧')
             # logging.info(f'共产生 {int(len(self.df)/args.gs)} 个图数据')
             # 调用数据生成
+            random.seed(args.seed)
             self.get_a()
         else:
             print('数据集存在 若重新生成请设置相应参数')
 
 
     def get_a(self):
-
-        random.seed(args.seed)
 
         # 节点相关
         can_id_list = self.df.get("Arbitration_ID").values  # 取出 ID 得到numpy类型 数据
@@ -256,15 +255,15 @@ class RandGraphData:
         f.close()
 
 
-if __name__ == '__main__':
-
-    # csv_dir = '/Users/aaron/Hebut/征稿_图像信息安全_20211130截稿/源程序/图塌缩分类/data/Car_Hacking_Challenge_Dataset_rev20Mar2021/0_Preliminary/0_Training'
-    # bmname = "Pre_train"
-    # csv_dir += bmname
-    from args import arg_parse
-
-    args = arg_parse()
-    p = OnlyGraphData(args)
+# if __name__ == '__main__':
+#
+#     # csv_dir = '/Users/aaron/Hebut/征稿_图像信息安全_20211130截稿/源程序/图塌缩分类/data/Car_Hacking_Challenge_Dataset_rev20Mar2021/0_Preliminary/0_Training'
+#     # bmname = "Pre_train"
+#     # csv_dir += bmname
+#     from args import arg_parse
+#
+#     args = arg_parse()
+    # p = OnlyGraphData(args)
     # p.get_a()
 
     # # 查看 _A 文件
