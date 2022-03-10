@@ -194,10 +194,24 @@ class RandGraphData:
 
         for gl_index, graph_len in enumerate(graph_len_list):  # 遍历每个图的报文长度
             for i in range(graph_len):  # 逐个图 遍历 节点的连接关系
+                try:
+                    if (hex2decNum_dict_list[graph_num][can_id_list[sum(graph_len_list[:gl_index])+i]], hex2decNum_dict_list[graph_num][can_id_list[sum(graph_len_list[:gl_index])+i+1]]) not in adj_list:  # 如果边没在 列表中 则 添加入 列表
+                        # 每个边是一个 tuple
+                        adj_list.append((hex2decNum_dict_list[graph_num][can_id_list[sum(graph_len_list[:gl_index])+i]], hex2decNum_dict_list[graph_num][can_id_list[sum(graph_len_list[:gl_index])+i+1]]))
 
-                if (hex2decNum_dict_list[graph_num][can_id_list[sum(graph_len_list[:gl_index])+i]], hex2decNum_dict_list[graph_num][can_id_list[sum(graph_len_list[:gl_index])+i+1]]) not in adj_list:  # 如果边没在 列表中 则 添加入 列表
-                    # 每个边是一个 tuple
-                    adj_list.append((hex2decNum_dict_list[graph_num][can_id_list[sum(graph_len_list[:gl_index])+i]], hex2decNum_dict_list[graph_num][can_id_list[sum(graph_len_list[:gl_index])+i+1]]))
+                except KeyError:
+                    # print('%%%')
+                    # 如果最后一个图的数据 不够组成一个图 则舍弃
+                    if i == graph_len - 1:
+                        continue
+                    else:
+                        print(f'KeyError 边 构造完毕 共构造了 {graph_num} 个图')
+                        read_done = True
+                        break
+                except IndexError:
+                    print(f'IndexError 边 构造完毕 共构造了 {graph_num} 个图')
+                    read_done = True
+                    break
 
             # 把每个图的 边个数 记录下来
             len_adj_list.append(len(adj_list))
