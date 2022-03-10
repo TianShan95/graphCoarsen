@@ -39,7 +39,12 @@ def benchmark_task_val(log_out_dir, log_out_file, args, feat='node-label', pred_
 
     data_out_dir = data_out_dir + 'processed/ps_' + args.pool_sizes
     # 标记 邻接矩阵是否 拉普拉斯 归一化
-    data_out_dir = data_out_dir + '_nor_' + str(bool(args.normalize)) + '_' + str(args.gs) + '/'
+    data_out_dir = data_out_dir + '_nor_' + str(bool(args.normalize)) + '_' \
+    # 是否是随机生成 还是 固定大小
+    if args.randGen:
+        data_out_dir = data_out_dir + 'random_' + str(args.seed) + '/'
+    else:
+        data_out_dir = data_out_dir + str(args.gs) + '/'
     print(f'查找数据集的文件位置是 {data_out_dir}')
     # 若 数据文件夹 不存在 则新建
     if not os.path.exists(data_out_dir):
