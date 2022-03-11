@@ -113,8 +113,7 @@ class RandGraphData:
         read_done = False  # 标志 数据是否读取完成
         while True:
             graph_len = random.randint(50, 300)
-            graph_len_list.append(graph_len)
-            logging.info(f'graphLen: {graph_len}')
+
             for i in range(graph_len):  # 逐个图编号节点 # 遍历所有的 can ID 转换为 十进制
                 try:
                     if can_id_list[msg_point+i] not in hex2decNum_dict.keys():  # 如果 此十六进制 ID 在此图中 未出现过 则需要新的节点编号
@@ -130,6 +129,9 @@ class RandGraphData:
             # 文件读取完成 则退出 while循环
             if read_done:
                 break
+            # 此次报文读取无误 则加入此次的报文长度
+            graph_len_list.append(graph_len)
+            logging.info(f'graphLen: {graph_len}')
 
             # 记录每个图的节点个数
             record_every_graph_node_num.append(len(hex2decNum_dict))
@@ -215,7 +217,7 @@ class RandGraphData:
                         read_done = True
                         break
                 except IndexError:
-                    logging.info(f'KeyError 边 构造完毕 共构造了 {graph_num} 个图')
+                    logging.info(f'IndexError 边 构造完毕 共构造了 {graph_num} 个图')
                     print(f'IndexError 边 构造完毕 共构造了 {graph_num} 个图')
                     read_done = True
                     break
@@ -229,7 +231,8 @@ class RandGraphData:
                              f'对应原始报文 {sum(graph_len_list[:gl_index])} - {sum(graph_len_list[:gl_index])+graph_len} 帧'
                              f'对应这些帧的报文ID为: '
                              f'gl_index: {gl_index}'
-                             f'graph_len: {graph_len}')
+                             f'graph_len: {graph_len} i: {i}'
+                             f'len(graph_len_list): {len(graph_len_list)}')
                 for canid in can_id_list[sum(graph_len_list[:gl_index]):sum(graph_len_list[:gl_index])+graph_len]:
                     logging.info(canid)
 
