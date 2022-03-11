@@ -47,17 +47,21 @@ class RandGraphData:
         output_ds_dir = output_ds_dir + '_dataset/'  # 输出数据集路径 放在 与 原始csv 同路径下
         self.output_name_suffix = output_ds_dir + os.path.basename(can_csv_dir) + dataset_file_suffix + 'random_' + str(args.seed)  # 生成数据集的文件名前缀
 
-        regen = False  # 是否需要重新生成数据集
-        if os.path.exists(output_ds_dir):
-            for d_suffix in dataset_suffix_list:
-                if os.path.isfile(self.output_name_suffix + '_' + d_suffix + '.txt'):
-                    continue
-                else:
-                    regen = True
-                    break
-        else:
-            os.makedirs(output_ds_dir)
+        if args.regen_dataset:
             regen = True
+        else:
+            regen = False  # 是否需要重新生成数据集
+            if os.path.exists(output_ds_dir):
+                for d_suffix in dataset_suffix_list:
+                    if os.path.isfile(self.output_name_suffix + '_' + d_suffix + '.txt'):
+                        continue
+                    else:
+                        regen = True
+                        break
+            else:
+                os.makedirs(output_ds_dir)
+                regen = True
+
         # 需要重新生成
         if regen:
             print('数据集不存在 正在构造数据集 ...')
