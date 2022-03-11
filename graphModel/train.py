@@ -131,7 +131,10 @@ def train(data_out_dir, log_out_file, history, canvas, dataset, model, args, sam
             # loss_list.append(loss)
             with canvas:
                 canvas.draw_plot(history['train_loss'])
-            print(f'Epoch: {epoch:4} step: {batch_idx:5}, loss: {loss:.6f} graph_size: {args.gs}, Normalize: {args.normalize}')
+            if args.randGen:
+                print(f'Epoch: {epoch:4} step: {batch_idx:5}, loss: {loss:.6f} seed: {args.seed}, concat: {args.concat} Norm: {args.normalize}')
+            else:
+                print(f'Epoch: {epoch:4} step: {batch_idx:5}, loss: {loss:.6f} graph_size: {args.gs}, concat: {args.concat} Norm: {args.normalize}')
             # print(epoch)
 
 

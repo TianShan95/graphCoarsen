@@ -216,6 +216,15 @@ class RandGraphData:
 
             # 把每个图的 边个数 记录下来
             len_adj_list.append(len(adj_list))
+
+            # 调试 有图的边数为0 的原因
+            if len(adj_list) == 0:
+                logging.info(f'第 {graph_num} 个图的边数 为 0'
+                             f'对应原始报文 {sum(graph_len_list[:gl_index])} - {sum(graph_len_list[:gl_index])+graph_len} 帧'
+                             f'对应这些帧的报文ID为: ')
+                for canid in can_id_list[sum(graph_len_list[:gl_index]):sum(graph_len_list[:gl_index])+graph_len]:
+                    logging.info(canid)
+
             # 读取完一个 图数据 把读取到的边列表 加入 列表
             # print(f'adj_list: \n{adj_list}')
             graph_adj_list.append(copy.deepcopy(adj_list))
@@ -229,6 +238,8 @@ class RandGraphData:
         # 输出所有图中 边最多/最少的图的边的个数
         logging.info(f'最少边的图的边有 {min(len_adj_list)} 条')
         logging.info(f'最多边的图的边有 {max(len_adj_list)} 条')
+
+
 
 
         # 写入 边文件
@@ -270,15 +281,15 @@ class RandGraphData:
         f.close()
 
 
-# if __name__ == '__main__':
-#
-#     # csv_dir = '/Users/aaron/Hebut/征稿_图像信息安全_20211130截稿/源程序/图塌缩分类/data/Car_Hacking_Challenge_Dataset_rev20Mar2021/0_Preliminary/0_Training'
-#     # bmname = "Pre_train"
-#     # csv_dir += bmname
-#     from args import arg_parse
-#
-#     args = arg_parse()
-    # p = OnlyGraphData(args)
+if __name__ == '__main__':
+
+    # csv_dir = '/Users/aaron/Hebut/征稿_图像信息安全_20211130截稿/源程序/图塌缩分类/data/Car_Hacking_Challenge_Dataset_rev20Mar2021/0_Preliminary/0_Training'
+    # bmname = "Pre_train"
+    # csv_dir += bmname
+    from args import arg_parse
+
+    args = arg_parse()
+    p = RandGraphData(args)
     # p.get_a()
 
     # # 查看 _A 文件
