@@ -131,7 +131,7 @@ class RandGraphData:
                 break
             # 此次报文读取无误 则加入此次的报文长度
             graph_len_list.append(graph_len)
-            logging.info(f'graphLen: {graph_len}')
+            # logging.info(f'graphLen: {graph_len}')
 
             # 记录每个图的节点个数
             record_every_graph_node_num.append(len(hex2decNum_dict))
