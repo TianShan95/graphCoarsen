@@ -204,16 +204,18 @@ class RandGraphData:
                         adj_list.append((hex2decNum_dict_list[graph_num][can_id_list[sum(graph_len_list[:gl_index])+i]], hex2decNum_dict_list[graph_num][can_id_list[sum(graph_len_list[:gl_index])+i+1]]))
 
                 except KeyError:
-                    print('%%%')
-                    print(f'i: {i} graph_len: {graph_len}')
+                    # print('%%%')
+                    # print(f'i: {i} graph_len: {graph_len}')
                     # 如果最后一个图的数据 不够组成一个图 则舍弃
                     if i == graph_len - 1:
                         continue
                     else:
+                        logging.info(f'KeyError 边 构造完毕 共构造了 {graph_num} 个图')
                         print(f'KeyError 边 构造完毕 共构造了 {graph_num} 个图')
                         read_done = True
                         break
                 except IndexError:
+                    logging.info(f'KeyError 边 构造完毕 共构造了 {graph_num} 个图')
                     print(f'IndexError 边 构造完毕 共构造了 {graph_num} 个图')
                     read_done = True
                     break
@@ -225,7 +227,9 @@ class RandGraphData:
             if len(adj_list) == 0:
                 logging.info(f'第 {graph_num} 个图的边数 为 0'
                              f'对应原始报文 {sum(graph_len_list[:gl_index])} - {sum(graph_len_list[:gl_index])+graph_len} 帧'
-                             f'对应这些帧的报文ID为: ')
+                             f'对应这些帧的报文ID为: '
+                             f'gl_index: {gl_index}'
+                             f'graph_len: {graph_len}')
                 for canid in can_id_list[sum(graph_len_list[:gl_index]):sum(graph_len_list[:gl_index])+graph_len]:
                     logging.info(canid)
 
