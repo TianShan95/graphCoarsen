@@ -231,5 +231,8 @@ import os
 #
 # print(os.listdir("/Users/aaron/Hebut/征稿_图像信息安全_20211130截稿/源程序/图塌缩分类/log/experiment_b4/graphSize_200_Normlize_True_20220220_190056_log"))
 
-a = [1, 2, 3, 4]
-print(sum(a[:2]))
+# a = [1, 2, 3, 4]
+# print(sum(a[:2]))
+
+a = 3.14
+print(format(a, '.0f'))

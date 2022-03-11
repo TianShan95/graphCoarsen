@@ -14,7 +14,7 @@ def prepare_data(log_out_file, graphs, graphs_list, args, test_graphs=None, max_
     print('Train ratio: ', args.train_ratio)
     test_graphs_list = []
 
-    if test_graphs is None:
+    if test_graphs is None:  # 有训练集 验证集 测试集
         train_idx = int(len(graphs) * args.train_ratio)
         test_idx = int(len(graphs) * (1 - args.test_ratio))
         train_graphs = graphs[:train_idx]
@@ -23,7 +23,7 @@ def prepare_data(log_out_file, graphs, graphs_list, args, test_graphs=None, max_
         train_graphs_list = graphs_list[:train_idx]
         val_graphs_list = graphs_list[train_idx: test_idx]
         test_graphs_list = graphs_list[test_idx:]
-    else:
+    else:  # 有训练集 验证集
         train_idx = int(len(graphs) * args.train_ratio)
         train_graphs = graphs[:train_idx]
         train_graphs_list = graphs_list[:train_idx]
