@@ -112,7 +112,7 @@ class RandGraphData:
         msg_point = 0  # 报文指针 每读取一个报文 加1 指上个图到达的报文位置
         read_done = False  # 标志 数据是否读取完成
         while True:
-            graph_len = random.randint(50, 300)
+            graph_len = random.randint(200, 500)
 
             for i in range(graph_len):  # 逐个图编号节点 # 遍历所有的 can ID 转换为 十进制
                 try:

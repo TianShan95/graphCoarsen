@@ -98,7 +98,7 @@ class GraphSampler(torch.utils.data.Dataset):
                 self.assign_feat_all.append(self.feature_all[-1])
 
         self.feat_dim = self.feature_all[0].shape[1]
-        self.assign_feat_dim = self.assign_feat_all[0].shape[1]
+        self.assign_feat_dim = self.assign_feat_all[0].shape[1]  # feat_dim: 81
 
     def __len__(self):
         return len(self.adj_all)
