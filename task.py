@@ -11,6 +11,7 @@ from processData.prepare_data import prepare_data
 import hiddenlayer as hl
 from graphModel import encoders
 import torch
+from utils.logger import logger
 
 
 def benchmark_task_val(log_out_dir, log_out_file, args, feat='node-label', pred_hidden_dims=[50], device='cpu'):
@@ -22,7 +23,6 @@ def benchmark_task_val(log_out_dir, log_out_file, args, feat='node-label', pred_
     :param device:
     :return:
     '''
-    all_vals = []
 
     # ps: pool_size 每个簇的节点数量
     # gs: graph_size 样本每个图的大小
@@ -45,7 +45,7 @@ def benchmark_task_val(log_out_dir, log_out_file, args, feat='node-label', pred_
         data_out_dir = data_out_dir + 'random_' + str(args.seed) + '/'
     else:
         data_out_dir = data_out_dir + str(args.gs) + '/'
-    print(f'查找数据集的文件位置是 {data_out_dir}')
+    logger.info(f'查找数据集的文件位置是 {data_out_dir}')
     # 若 数据文件夹 不存在 则新建
     if not os.path.exists(data_out_dir):
         os.makedirs(data_out_dir)
@@ -54,40 +54,40 @@ def benchmark_task_val(log_out_dir, log_out_file, args, feat='node-label', pred_
     dataset_file_name = data_out_dir + 'dataset.p'
 
     if os.path.isfile(graph_list_file_name) and os.path.isfile(dataset_file_name):
-        print('Files exist, reading from stored files....')
-        print('Reading file from', data_out_dir)
+        logger.info('Files exist, reading from stored files....')
+        logger.info('Reading file from', data_out_dir)
         # 输出信息到log文件
-        with open(log_out_file, 'a') as f:
-            f.write(f'Files exist, reading from stored files....')
-            f.write(f'Reading file from{data_out_dir}')
-            f.close()
+        # with open(log_out_file, 'a') as f:
+        logger.info(f'Files exist, reading from stored files....')
+        logger.info(f'Reading file from{data_out_dir}')
+            # f.close()
         with open(dataset_file_name, 'rb') as f:
             # 原始图的文件
             graphs = pickle.load(f)
         with open(graph_list_file_name, 'rb') as f:
             # 坍塌处理过的 图文件
             graphs_list = pickle.load(f)
-        print('Data loaded!')
+        logger.info('Data loaded!')
     else:
-        print('No files exist, preprocessing datasets...')
+        logger.info('No files exist, preprocessing datasets...')
 
         # 生成图数据集
         if args.randGen:
-            print('随机生成图大小')
+            logger.info('随机生成图大小')
             p = RandGraphData(args)
         else:
-            print('生成固定图大小')
+            logger.info('生成固定图大小')
             p = OnlyGraphData(args)
 
         graphs = load_data.read_graphfile(p.output_name_suffix, max_nodes=args.max_nodes)
-        print('Data length before filtering: ', len(graphs))
+        logger.info('Data length before filtering: ', len(graphs))
 
         dataset_copy = graphs.copy()
 
         len_data = len(graphs)
         graphs_list = []
         pool_sizes = [int(i) for i in args.pool_sizes.split('_')]
-        print('pool_sizes: ', pool_sizes)
+        logger.info('pool_sizes: ', pool_sizes)
 
         # 遍历每个图 得到坍塌图的池化矩阵
         # 把处理好的数据储存
@@ -113,20 +113,20 @@ def benchmark_task_val(log_out_dir, log_out_file, args, feat='node-label', pred_
                 # if args.method == 'wave':
                 coarsen_graph.coarsening_pooling(args.normalize)
                 graphs_list.append(coarsen_graph)
-        print('Data length after filtering: ', len(graphs), len(graphs_list))
-        print('Dataset preprocessed, dumping....')
+        logger.info('Data length after filtering: ', len(graphs), len(graphs_list))
+        logger.info('Dataset preprocessed, dumping....')
         with open(dataset_file_name, 'wb') as f:
             pickle.dump(graphs, f)
         with open(graph_list_file_name, 'wb') as f:
             pickle.dump(graphs_list, f)
-        print('Dataset dumped!')
+        logger.info('Dataset dumped!')
 
     # 获取 图特征标识
     # if feat == 'node-feat' and 'feat_dim' in graphs[0].graph:
     #     print('Using node features')
     #     input_dim = graphs[0].graph['feat_dim']
     # elif feat == 'node-label' and 'label' in graphs[0].nodes[0]:
-    print('Using node labels')
+    logger.info('Using node labels')
     # 使用节点标签作为图特征
     for G in graphs:
         for u in G.nodes():
@@ -181,14 +181,14 @@ def benchmark_task_val(log_out_dir, log_out_file, args, feat='node-label', pred_
                 match_string_len = len("model")
                 last_char_index = args.ModelPara_dir.rfind("model")
 
-                print(f'模型路径: {args.ModelPara_dir}')
-                print(f'模型文件是否存在：{os.path.isfile(args.ModelPara_dir)}')
-                print(f'模型参数路径: {args.ModelPara_dir[:last_char_index] + "para" + args.ModelPara_dir[last_char_index + match_string_len:]}')
-                print(f'模型参数文件是否存在：{os.path.isfile(args.ModelPara_dir[:last_char_index] + "para" + args.ModelPara_dir[last_char_index + match_string_len:])}')
+                logger.info(f'模型路径: {args.ModelPara_dir}')
+                logger.info(f'模型文件是否存在：{os.path.isfile(args.ModelPara_dir)}')
+                logger.info(f'模型参数路径: {args.ModelPara_dir[:last_char_index] + "para" + args.ModelPara_dir[last_char_index + match_string_len:]}')
+                logger.info(f'模型参数文件是否存在：{os.path.isfile(args.ModelPara_dir[:last_char_index] + "para" + args.ModelPara_dir[last_char_index + match_string_len:])}')
                 # 加载 指定模型
                 # 加载在 cuda 上训练的 模型
                 if device == 'cpu':
-                    print('进入cpu设备选项')
+                    logger.info('进入cpu设备选项')
                     model = torch.load(args.ModelPara_dir, map_location=torch.device('cpu'))
 
 
@@ -212,13 +212,11 @@ def benchmark_task_val(log_out_dir, log_out_file, args, feat='node-label', pred_
             # 把训练好的模型 保存到训练的数据集文件夹内 例如 Pre_train_D_1_2_processed/ps_10_nor_False_50
             # 模型名字里写入被训练的 epoch 数
             if args.with_test:
-                _, val_accs, test_accs, best_val_result = train(log_out_dir, log_out_file, history, canvas, train_dataset, model, args, val_dataset=val_dataset, test_dataset=test_dataset,
-                 log_dir = log_out_dir, device=device)
+                _, val_accs, test_accs, best_val_result = train(log_out_dir, history, canvas, train_dataset, model, args, val_dataset=val_dataset, test_dataset=test_dataset, device=device)
             else:
-                _, val_accs, test_accs, best_val_result = train(log_out_dir, log_out_file, history, canvas, train_dataset, model, args, val_dataset=val_dataset, test_dataset=None,
-                 log_dir = log_out_dir, device=device)
+                _, val_accs, test_accs, best_val_result = train(log_out_dir, history, canvas, train_dataset, model, args, val_dataset=val_dataset, test_dataset=None, device=device)
 
-            print('Shuffle ', i, '--------- best val result', best_val_result )
+            logger.info('Shuffle ', i, '--------- best val result', best_val_result )
 
 
 

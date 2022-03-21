@@ -6,11 +6,12 @@ from graphModel.evaluate import evaluate
 import hiddenlayer as hl
 import copy
 import re
+from utils.logger import logger
 
 
 # 单独训练 图网络的 训练函数
-def train(data_out_dir, log_out_file, history, canvas, dataset, model, args, same_feat=True, val_dataset=None, test_dataset=None,
-          mask_nodes=True, log_dir=None, device='cpu'):
+def train(data_out_dir, history, canvas, dataset, model, args, same_feat=True, val_dataset=None, test_dataset=None,
+          mask_nodes=True, device='cpu'):
     # writer_batch_idx = [0, 3, 6, 9]
 
     # 模型保存命名相关
@@ -61,7 +62,6 @@ def train(data_out_dir, log_out_file, history, canvas, dataset, model, args, sam
         model.train()
         for batch_idx, data in enumerate(dataset):
 
-            time1 = time.time()
             model.zero_grad()
 
             adj = Variable(data['adj'].float(), requires_grad=False).to(device)
@@ -100,8 +100,6 @@ def train(data_out_dir, log_out_file, history, canvas, dataset, model, args, sam
 
                 pool_matrices_dic[ind] = pool_matrices_list
 
-            # time2 = time.time() - begin_time # 准备一次数据的时间
-
             ypred, _ = model(h0, adj, adj_pooled_list, batch_num_nodes, batch_num_nodes_list, pool_matrices_dic)
             # else:
             #     ypred = model(h0, adj, batch_num_nodes, assign_x=assign_input)
@@ -120,10 +118,10 @@ def train(data_out_dir, log_out_file, history, canvas, dataset, model, args, sam
             # sing_epoch_loss_list.append(copy.deepcopy(loss))  # 记录下每个 loss
 
             # 记录 loss
-            if log_out_file:
-                with open(log_out_file, 'a') as f:
-                    f.write('\nEpoch: ' + str(epoch) + 'loss: ' + str(loss.item()) + '\n')
-                    f.close()
+            # if log_out_file:
+            #     with open(log_out_file, 'a') as f:
+            #         f.write('\nEpoch: ' + str(epoch) + 'loss: ' + str(loss.item()) + '\n')
+                    # f.close()
 
             # 训练时 实时显示 loss 变化曲线
             history.log((epoch, batch_idx), train_loss=loss)
@@ -131,35 +129,33 @@ def train(data_out_dir, log_out_file, history, canvas, dataset, model, args, sam
             with canvas:
                 canvas.draw_plot(history['train_loss'])
             if args.randGen:
-                print(f'Epoch: {epoch:4} step: {batch_idx:5}, loss: {loss:.6f} seed: {args.seed}, concat: {args.concat} Norm: {args.normalize}')
+                logger.info(f'Epoch: {epoch:4} step: {batch_idx:5}, loss: {loss:.6f} seed: {args.seed}, concat: {args.concat} Norm: {args.normalize}')
             else:
-                print(f'Epoch: {epoch:4} step: {batch_idx:5}, loss: {loss:.6f} graph_size: {args.gs}, concat: {args.concat} Norm: {args.normalize}')
+                logger.info(f'Epoch: {epoch:4} step: {batch_idx:5}, loss: {loss:.6f} graph_size: {args.gs}, concat: {args.concat} Norm: {args.normalize}')
             # print(epoch)
 
 
-
         avg_loss /= batch_idx + 1
-        print(f'epoch {epoch} 结束 平均loss是 {avg_loss}')
+        logger.info(f'epoch {epoch} 结束 平均loss是 {avg_loss}')
         elapsed = time.time() - begin_time  # 一个 epoch 耗费的时间
         # if writer is not None:
         #     writer.add_scalar('loss/avg_loss', avg_loss, epoch)
         #     if args.linkpred:
         #         writer.add_scalar('loss/linkpred_loss', model.link_loss, epoch)
 
-        eval_time = time.time()
-        print('正在评估在训练数据上的精度')
+        logger.info('正在评估在训练数据上的精度')
         result = evaluate(dataset, model, args, name='Train', max_num_examples=100, device=device)
-        eval_time2 = time.time()
+
         # 在训练集上的精度
         train_accs.append(result['acc'])
-        print(f"在训练集的精度是: {result['acc']}")
+        logger.info(f"在训练集的精度是: {result['acc']}")
         train_epochs.append(epoch)
         if val_dataset is not None:
             val_result = evaluate(val_dataset, model, args, name='Validation', device=device)
             val_accs.append(val_result['acc'])
-            print(f"在验证集的精度是: {val_result['acc']}")
+            logger.info(f"在验证集的精度是: {val_result['acc']}")
         else:
-            print(f'无 验证集')
+            logger.info(f'无 验证集')
 
         # 记录在 验证集最好的 精度 epoch 和 loss
         if val_result['acc'] > best_val_result['acc'] - 1e-7:
@@ -169,9 +165,9 @@ def train(data_out_dir, log_out_file, history, canvas, dataset, model, args, sam
             if test_dataset is not None:
                 test_result = evaluate(test_dataset, model, args, name='Test', device=device)
                 test_result['epoch'] = epoch
-                print(f"在测试集的精度是: {test_result['acc']}")
+                logger.info(f"在测试集的精度是: {test_result['acc']}")
             else:
-                print(f'无 测试集')
+                logger.info(f'无 测试集')
 
             # 保存在验证集上精度最好的模型
             # 保存模型参数
@@ -201,25 +197,13 @@ def train(data_out_dir, log_out_file, history, canvas, dataset, model, args, sam
         if test_dataset is not None:
             test_epochs.append(test_result['epoch'])
             test_accs.append(test_result['acc'])
-        # if epoch % 50 == 0:
-        print('Epoch: ', epoch, '----------------------------------')
-        print('avg_loss', avg_loss)
-        print('Train_result: ', result)
-        print('Val result: ', val_result)
-        print('Best val result', best_val_result)
 
-
-        with open(log_out_file, 'a') as f:
-            f.write('Epoch: ' + str(epoch) + '-----------------------------\n')
-            f.write(f'avg_loss {avg_loss}\n')
-            f.write('Train_result: ' + str(result) + '\n')
-            f.write('Val result: ' + str(val_result) + '\n')
-            f.write('Best val result: ' + str(best_val_result) + '\n')
-            f.write(f'This Epoch consume time: {str(elapsed)} s')
-            f.close()
-
-        end_time = time.time()
-
+        logger.info('Epoch: ' + str(epoch) + '-----------------------------')
+        logger.info(f'avg_loss {avg_loss}')
+        logger.info('Train_result: ' + str(result))
+        logger.info('Val result: ' + str(val_result))
+        logger.info('Best val result: ' + str(best_val_result))
+        logger.info(f'This Epoch consume time: {str(elapsed)} s')
 
         # 每 20 epoch 保存一次模型
         # if epoch % 20 == 0:
@@ -230,10 +214,8 @@ def train(data_out_dir, log_out_file, history, canvas, dataset, model, args, sam
         #     model_name = 'model_' + time_mark + '_totalEpoch_' + str(args.num_epochs) + '_epoch_' + str(epoch) + \
         #                  '_ps_' + args.pool_sizes + '_gs_' + initial_gs + '_nor_' + str(args.normalize) + model_name_add + '.pth'
         #     torch.save(model, data_out_dir + model_name)  # 保存 整个模型
-
-    with open(log_out_file, 'a') as f:
-        f.write('train step consume total time: ' + str(time.time()-train_start_time) + 's -----------------------------\n')
-        f.write('local time: ' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
-        f.close()
+    # 训练完成
+    logger.info('train step consume total time: ' + str(time.time()-train_start_time) + 's -----------------------------')
+    logger.info('local time: ' + time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
 
     return model, val_accs, test_accs, best_val_result

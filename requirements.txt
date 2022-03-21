@@ -1,4 +1,5 @@
 hiddenlayer
+scipy==1.8.0
 networkx
 community
 sklearn
