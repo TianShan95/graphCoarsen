@@ -120,7 +120,7 @@ class GcnEncoderGraph(nn.Module):
             pred_model = nn.Linear(pred_input_dim, label_dim).to(self.device)
         else:
             pred_layers = []
-            for pred_dim in pred_hidden_dims:
+            for pred_dim in pred_hidden_dims:  # 全连接 中间隐藏层维度
                 pred_layers.append(nn.Linear(pred_input_dim, pred_dim).to(self.device))
                 pred_layers.append(self.act)
                 pred_input_dim = pred_dim
@@ -303,8 +303,10 @@ class WavePoolingGcnEncoder(GcnEncoderGraph):
                                                          label_dim, num_aggs=self.num_aggs)
 
         else:
-            if concat:
-                self.pred_model = self.build_pred_layers(self.pred_input_dim * (len(pool_sizes) + 1), pred_hidden_dims,
+            if concat:  # 构建预测全连接层
+                # self.pred_model = self.build_pred_layers(self.pred_input_dim * (len(pool_sizes) + 1), pred_hidden_dims,
+                #                                          label_dim, num_aggs=self.num_aggs)
+                self.pred_model = self.build_pred_layers(60, pred_hidden_dims,
                                                          label_dim, num_aggs=self.num_aggs)
             else:
                 self.pred_model = self.build_pred_layers(self.pred_input_dim, pred_hidden_dims,
@@ -352,7 +354,7 @@ class WavePoolingGcnEncoder(GcnEncoderGraph):
             else:
                 embedding_mask = None
             adj_new = adj_pooled_list[i].type(torch.FloatTensor).to(self.device)
-            self.conv_last_after_pool[i] = None  # 池化后减少一层卷积层 2022-04-01
+            # self.conv_last_after_pool[i] = None  # 池化后减少一层卷积层 2022-04-01
             embedding_tensor = self.gcn_forward(embedding_tensor, adj_new,
                                                 self.conv_first_after_pool[i], self.conv_block_after_pool[i],
                                                 self.conv_last_after_pool[i], embedding_mask)
