@@ -21,7 +21,7 @@ def main():
 
     # 记录本次实验的输入参数
     with open('../experiment/exp-record.txt', 'a') as f:
-        f.write(time_mark + '\t' + '\t'.join(sys.argv))
+        f.write(time_mark + '\t' + '\t'.join(sys.argv) + '\n')
         f.close()
 
     # 初始化参数
@@ -29,9 +29,9 @@ def main():
 
     # 定义 并创建 此次实验的 log 文件夹
     if prog_args.randGen:
-        log_out_dir = prog_args.out_dir + '/'  + '_randGen_' + str(prog_args.seed)  + '_Normlize_'+ str(bool(prog_args.normalize))+'_concat_'+str(prog_args.concat) + time_mark + '_log/'
+        log_out_dir = prog_args.out_dir + '/'  + 'randGen_' + str(prog_args.seed)  + '_Normlize_'+ str(bool(prog_args.normalize))+'_concat_'+str(prog_args.concat) + time_mark + '_log/'
     else:
-        log_out_dir = prog_args.out_dir + '/'  + '_graphSize_' + str(prog_args.gs)  + '_Normlize_'+ str(bool(prog_args.normalize))+'_concat_'+str(prog_args.concat) + time_mark + '_log/'
+        log_out_dir = prog_args.out_dir + '/'  + 'graphSize_' + str(prog_args.gs)  + '_Normlize_'+ str(bool(prog_args.normalize))+'_concat_'+str(prog_args.concat) + time_mark + '_log/'
     if not os.path.exists(log_out_dir):
         os.makedirs(log_out_dir, exist_ok=True)
     # 定义 并创建 log 文件
