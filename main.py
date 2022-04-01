@@ -78,6 +78,12 @@ def main():
     logger.info(f'Norm for eigens: {prog_args.norm}')
     logger.info(f'With test: {prog_args.with_test}')
 
+    # 是否随机生成训练
+    if prog_args.randGen:
+        logger.info(f'随机生成图数据帧数 {prog_args.randGen}')
+        logger.info(f'最小帧数 {prog_args.msg_smallest_num}')
+        logger.info(f'最大帧数 {prog_args.msg_biggest_num}')
+
     # 查看设备
     if torch.cuda.is_available():
         device = 'cuda'
