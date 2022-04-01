@@ -3,7 +3,7 @@ import torch.nn as nn
 from torch.nn import init
 import torch.nn.functional as F
 import numpy as np
-
+from utils.logger import logger
 # The code is partially adapted from https://github.com/RexYing/diffpool
 # GCN basic operation
 
@@ -62,7 +62,7 @@ class GcnEncoderGraph(nn.Module):
         '''
         super(GcnEncoderGraph, self).__init__()
 
-        print('Whether concat', concat)
+        logger.info(f'Whether concat {concat}')
 
         self.device = device
 
@@ -95,11 +95,11 @@ class GcnEncoderGraph(nn.Module):
                 if m.bias is not None:
                     m.bias.data = nn.init.constant_(m.bias.data, 0.0)
 
-        print('num_layers: ', num_layers)
-        print('pred_hidden_dims: ', pred_hidden_dims)
-        print('hidden_dim: ', hidden_dim)
-        print('embedding_dim: ', embedding_dim)
-        print('label_dim', label_dim)
+        logger.info(f'num_layers: {num_layers}')
+        logger.info(f'pred_hidden_dims: {pred_hidden_dims}')
+        logger.info(f'hidden_dim: {hidden_dim}')
+        logger.info(f'embedding_dim: {embedding_dim}')
+        logger.info(f'label_dim {label_dim}')
 
     def build_conv_layers(self, input_dim, hidden_dim, embedding_dim, num_layers, add_self,
                           normalize=False, dropout=0.0):
@@ -266,13 +266,13 @@ class WavePoolingGcnEncoder(GcnEncoderGraph):
 
         self.device = device
 
-        print('Device_-wave: ', device)
+        logger.info(f'Device_-wave: {device}')
 
         self.conv_first_after_pool = nn.ModuleList()
         self.conv_block_after_pool = nn.ModuleList()
         self.conv_last_after_pool = nn.ModuleList()
         for i in range(len(pool_sizes)):
-            print('In WavePooling', self.pred_input_dim * self.num_pool_matrix)
+            logger.info(f'In WavePooling {self.pred_input_dim * self.num_pool_matrix}')
             conv_first2, conv_block2, conv_last2 = self.build_conv_layers(
                 self.pred_input_dim * self.num_pool_matrix, hidden_dim, embedding_dim, num_layers,
                 add_self, normalize=True, dropout=dropout)
@@ -331,7 +331,6 @@ class WavePoolingGcnEncoder(GcnEncoderGraph):
         out_all = []
 
         # 图卷积 三层 每个卷积层输出 20 维的特征向量
-        self.conv_block = []  # 池化之前减少一层卷积层 2022-04-01
         embedding_tensor = self.gcn_forward(x, adj, self.conv_first, self.conv_block, self.conv_last, embedding_mask)
         # print('embedding_tensor.shape: ')
         # print(embedding_tensor.shape) # [1, 300, 60]

@@ -55,7 +55,7 @@ def benchmark_task_val(log_out_dir, args, feat='node-label', pred_hidden_dims=[5
 
     if os.path.isfile(graph_list_file_name) and os.path.isfile(dataset_file_name):
         logger.info('Files exist, reading from stored files....')
-        logger.info('Reading file from', data_out_dir)
+        logger.info(f'Reading file from {data_out_dir}')
         # 输出信息到log文件
         # with open(log_out_file, 'a') as f:
         logger.info(f'Files exist, reading from stored files....')
@@ -80,14 +80,14 @@ def benchmark_task_val(log_out_dir, args, feat='node-label', pred_hidden_dims=[5
             p = OnlyGraphData(args)
 
         graphs = load_data.read_graphfile(p.output_name_suffix, max_nodes=args.max_nodes)  # 原始图
-        logger.info('Data length before filtering: ', len(graphs))
+        logger.info(f'Data length before filtering: {len(graphs)}')
 
         dataset_copy = graphs.copy()  # 拷贝原始图
 
         len_data = len(graphs)
         graphs_list = []  # 存储 坍缩图
         pool_sizes = [int(i) for i in args.pool_sizes.split('_')]
-        logger.info('pool_sizes: ', pool_sizes)
+        logger.info(f'pool_sizes: {pool_sizes}')
 
         # 遍历每个图 得到坍塌图的池化矩阵
         # 把处理好的数据储存
@@ -113,7 +113,7 @@ def benchmark_task_val(log_out_dir, args, feat='node-label', pred_hidden_dims=[5
                 # if args.method == 'wave':
                 coarsen_graph.coarsening_pooling(args.normalize)
                 graphs_list.append(coarsen_graph)  # 坍缩图
-        logger.info('Data length after filtering: ', len(graphs), len(graphs_list))
+        logger.info(f'Data length after filtering: { len(graphs)}, {len(graphs_list)}')
         logger.info('Dataset preprocessed, dumping....')
         with open(dataset_file_name, 'wb') as f:
             pickle.dump(graphs, f)
@@ -216,7 +216,7 @@ def benchmark_task_val(log_out_dir, args, feat='node-label', pred_hidden_dims=[5
             else:
                 _, val_accs, test_accs, best_val_result = train(log_out_dir, history, canvas, train_dataset, model, args, val_dataset=val_dataset, test_dataset=None, device=device)
 
-            logger.info('Shuffle ', i, '--------- best val result', best_val_result )
+            logger.info(f'Shuffle {i}--------- best val result {best_val_result}')
 
 
 

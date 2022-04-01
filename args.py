@@ -58,7 +58,7 @@ def arg_parse():
 
 
     parser.add_argument('--pred_hidden', type=str,
-                        help='pred_hidden', default='50')
+                        help='pred_hidden', default='50')  # 多层 '120_50'
 
     parser.add_argument('--out_dir', type=str,
                         help='out_dir', default='../experiment')
