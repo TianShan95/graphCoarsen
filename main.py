@@ -36,10 +36,10 @@ def main():
         os.makedirs(log_out_dir, exist_ok=True)
     # 定义 并创建 log 文件
     if prog_args.randGen:
-        log_out_file = log_out_dir + 'randGen_' + str(prog_args.seed)  + '_Normlize_'+ str(bool(prog_args.normalize)) +'_concat_'+str(prog_args.concat) + '_' + '_shuffle_' + str(prog_args.shuffle) + time_mark + '.txt'
+        log_out_file = log_out_dir + 'randGen_' + str(prog_args.seed)  + '_Normlize_'+ str(bool(prog_args.normalize)) +'_concat_'+str(prog_args.concat) + '_' + '_shuffle_' + str(prog_args.shuffle) + time_mark + '.log'
 
     else:
-        log_out_file = log_out_dir + 'graphSize_' + str(prog_args.gs)  + '_Normlize_'+ str(bool(prog_args.normalize)) +'_concat_'+str(prog_args.concat) + '_' + '_shuffle_' + str(prog_args.shuffle) + time_mark + '.txt'
+        log_out_file = log_out_dir + 'graphSize_' + str(prog_args.gs)  + '_Normlize_'+ str(bool(prog_args.normalize)) +'_concat_'+str(prog_args.concat) + '_' + '_shuffle_' + str(prog_args.shuffle) + time_mark + '.log'
 
 
 

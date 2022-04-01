@@ -106,7 +106,9 @@ def read_graphfile(dataset_suffix, max_nodes=None):
     graphs = []
     for i in range(1, 1 + len(adj_list)):
         # indexed from 1 here
-        G = nx.from_edgelist(adj_list[i])
+        # G = nx.from_edgelist(adj_list[i])
+        G = nx.from_edgelist(adj_list[i], create_using=nx.DiGraph())  # 有向图
+
         if max_nodes is not None and G.number_of_nodes() > max_nodes:
             continue
 

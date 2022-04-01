@@ -50,10 +50,11 @@ def benchmark_task_val(log_out_dir, args, feat='node-label', pred_hidden_dims=[5
     if not os.path.exists(data_out_dir):
         os.makedirs(data_out_dir)
 
-    graph_list_file_name = data_out_dir + 'graphs_list.p'
-    dataset_file_name = data_out_dir + 'dataset.p'
+    graph_list_file_name = data_out_dir + 'graphs_list_Di.p'
+    dataset_file_name = data_out_dir + 'dataset_Di.p'
 
     if os.path.isfile(graph_list_file_name) and os.path.isfile(dataset_file_name):
+    # if False:
         logger.info('Files exist, reading from stored files....')
         logger.info(f'Reading file from {data_out_dir}')
         # 输出信息到log文件
@@ -115,6 +116,8 @@ def benchmark_task_val(log_out_dir, args, feat='node-label', pred_hidden_dims=[5
                 graphs_list.append(coarsen_graph)  # 坍缩图
         logger.info(f'Data length after filtering: { len(graphs)}, {len(graphs_list)}')
         logger.info('Dataset preprocessed, dumping....')
+
+        # logger.info(f'这是测试， 屏蔽一下几行，不进行数据集缓存')
         with open(dataset_file_name, 'wb') as f:
             pickle.dump(graphs, f)
         with open(graph_list_file_name, 'wb') as f:
