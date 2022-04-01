@@ -160,19 +160,20 @@ class GcnEncoderGraph(nn.Module):
         # print(x.shape)
 
         if self.bn:
-            x = self.apply_bn(x)
+            x = self.apply_bn(x)  # batch norm
 
         x_all = [x]
 
-        for i in range(len(conv_block)):
+        for i in range(len(conv_block)):  # 中间层卷积
             x = conv_block[i](x, adj)
             x = self.act(x)
             if self.bn:
                 x = self.apply_bn(x)
             x_all.append(x)
 
-        x = conv_last(x, adj)  # 最后 一层卷积
-        x_all.append(x)
+        if conv_last:  # 可能存在最后一层卷积被屏蔽的情况
+            x = conv_last(x, adj)  # 最后 一层卷积
+            x_all.append(x)
 
         if self.concat:
             x_tensor = torch.cat(x_all, dim=2)
@@ -258,7 +259,7 @@ class WavePoolingGcnEncoder(GcnEncoderGraph):
         add_self = not concat
         self.mask = mask
         self.pool_sizes = pool_sizes
-        self.num_pool_matrix = num_pool_matrix
+        self.num_pool_matrix = num_pool_matrix  # args 默认为 1
         self.num_pool_final_matrix = num_pool_final_matrix
 
         self.con_final = args.con_final
@@ -319,22 +320,23 @@ class WavePoolingGcnEncoder(GcnEncoderGraph):
         # print('shape: ')
         # print('x shape: ', x.shape)
         # print('adj shape', adj.shape)
-        max_num_nodes = adj.size()[1]  # 最大节点数 在 args 处 设置
+        max_num_nodes = adj.size()[1]  # 最大节点数 在 args 处 设置 adj经过了padding处理 大小为 设置的最大节点个数
         # 因为 adj 矩阵 的维度是按照 args 里最大节点数设置的维度 方阵
         # 所以 根据 本次图的节点个数(adj 用到的最大位置) 把没有用到的节点位置 屏蔽
         if batch_num_nodes is not None:
-            embedding_mask = self.construct_mask(max_num_nodes, batch_num_nodes)  # batch_num_nodes 图所有节点的个数
+            embedding_mask = self.construct_mask(max_num_nodes, batch_num_nodes)  # batch_num_nodes 原始图的节点个数 embedding_mask batchsize 行 最大节点数列 存在节点的位置置1
         else:
             embedding_mask = None
 
         out_all = []
 
-        # 图卷积
+        # 图卷积 三层 每个卷积层输出 20 维的特征向量
+        self.conv_block = []  # 池化之前减少一层卷积层 2022-04-01
         embedding_tensor = self.gcn_forward(x, adj, self.conv_first, self.conv_block, self.conv_last, embedding_mask)
         # print('embedding_tensor.shape: ')
         # print(embedding_tensor.shape) # [1, 300, 60]
 
-        out, _ = torch.max(embedding_tensor, dim=1)  # 维度60 每层卷积输出维度20 三层卷积 conca
+        out, _ = torch.max(embedding_tensor, dim=1)  # 维度60 每层卷积输出维度20 三层卷积 concat
         # print('out.shape: ')
         # print(out.shape)
         out_all.append(out)
@@ -342,15 +344,16 @@ class WavePoolingGcnEncoder(GcnEncoderGraph):
             out = torch.sum(embedding_tensor, dim=1)
             out_all.append(out)
 
-        for i in range(len(self.pool_sizes)):
+        for i in range(len(self.pool_sizes)):  # 进行一次图坍缩
             pool = Pool(self.num_pool_matrix, pool_matrices_dic[i], device=self.device)
 
-            embedding_tensor = pool(embedding_tensor)
-            if self.mask:
-                embedding_mask = self.construct_mask(max_num_nodes, batch_num_nodes_list[i])
+            embedding_tensor = pool(embedding_tensor)  # 池化后的 x
+            if self.mask:  # args 给出 默认为 1
+                embedding_mask = self.construct_mask(max_num_nodes, batch_num_nodes_list[i])  # 屏蔽节点 每行代表一个图 每行1的个数 是 坍缩后图节点的个数
             else:
                 embedding_mask = None
             adj_new = adj_pooled_list[i].type(torch.FloatTensor).to(self.device)
+            self.conv_last_after_pool[i] = None  # 池化后减少一层卷积层 2022-04-01
             embedding_tensor = self.gcn_forward(embedding_tensor, adj_new,
                                                 self.conv_first_after_pool[i], self.conv_block_after_pool[i],
                                                 self.conv_last_after_pool[i], embedding_mask)
@@ -384,8 +387,8 @@ class Pool(nn.Module):
     def __init__(self, num_pool, pool_matrices, device='cpu'):
         super(Pool, self).__init__()
 
-        self.pool_matrices = pool_matrices
-        self.num_pool = num_pool
+        self.pool_matrices = pool_matrices  # 池化矩阵
+        self.num_pool = num_pool  # 池化的次数
 
         self.device = device
 

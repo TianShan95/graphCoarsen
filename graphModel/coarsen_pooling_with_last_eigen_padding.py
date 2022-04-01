@@ -26,7 +26,7 @@ class Graphs():
         self.adjacency_matrix = adjacency_matrix
         self.num_nodes = adjacency_matrix[:, 0].shape[0]
         self.pooling_sizes = pooling_sizes
-        self.graphs = [scipy.sparse.csr_matrix(adjacency_matrix)]
+        self.graphs = [scipy.sparse.csr_matrix(adjacency_matrix)]  # 存储该图每个塌缩过程后的邻接矩阵 包括原始图的 邻接矩阵
         self.layer2pooling_matrices = dict()
 
     def coarsening_pooling(self, normalize=True):

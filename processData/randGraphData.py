@@ -15,9 +15,10 @@ class RandGraphData:
     def __init__(self, args):
         '''
         :param args:
-        :param can_csv_dir: 原始数据的位置 + 原始文件前缀(例如：Pre_train)
-        :param fixed_len:
         '''
+
+        self.args = args
+
         # can_csv_dir 是数据集所在文件夹 和 数据集文件前缀 Pre_train
         can_csv_dir = args.datadir + args.bmname
         # self.fixed_len = args.gs  # 指定 每个图需要的 can 数据长度
@@ -83,7 +84,7 @@ class RandGraphData:
             random.seed(args.seed)
             self.get_a()
         else:
-            print('数据集存在 若重新生成请设置相应参数')
+            logging.info('数据集存在 若重新生成请设置相应参数')
 
 
     def get_a(self):
@@ -112,7 +113,7 @@ class RandGraphData:
         msg_point = 0  # 报文指针 每读取一个报文 加1 指上个图到达的报文位置
         read_done = False  # 标志 数据是否读取完成
         while True:
-            graph_len = random.randint(200, 500)
+            graph_len = random.randint(self.args.msg_smallest_num, self.args.msg_biggest_num)
 
             for i in range(graph_len):  # 逐个图编号节点 # 遍历所有的 can ID 转换为 十进制
                 try:

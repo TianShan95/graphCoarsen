@@ -12,29 +12,40 @@ class GraphSampler(torch.utils.data.Dataset):
 
     def __init__(self, G_list, graphs_list, num_pool_matrix, num_pool_final_matrix, features='default', normalize=True,
                  assign_feat='default', max_num_nodes=0, norm='l2'):
-        self.adj_all = []
-        self.len_all = []
-        self.feature_all = []
-        self.label_all = []
-        self.graphs_list = graphs_list
+        '''
+        :param G_list: 原始图
+        :param graphs_list: 坍缩图
+        :param num_pool_matrix:
+        :param num_pool_final_matrix:
+        :param features:
+        :param normalize:
+        :param assign_feat:
+        :param max_num_nodes:
+        :param norm:
+        '''
+        self.adj_all = []  # 所有原始图的 正则化 拉普拉斯 矩阵
+        self.len_all = []  # 所有原始图的 节点个数
+        self.feature_all = []  # 所有原始图的 特征 每个元素(numpy)是每个图的所有节点的特征矩阵
+        self.label_all = []  # 所有原始图的 标签
+        self.graphs_list = graphs_list  # 坍缩图
         self.num_pool_matrix = num_pool_matrix
         self.num_pool_final_matrix = num_pool_final_matrix
         self.norm = norm
 
         self.assign_feat_all = []
 
-        if max_num_nodes == 0:
-            self.max_num_nodes = max([G.number_of_nodes() for G in G_list])
+        if max_num_nodes == 0:  # args 传入进来 100
+            self.max_num_nodes = max([G.number_of_nodes() for G in G_list])  # 所有图中最大的节点个数
         else:
             self.max_num_nodes = max_num_nodes
 
-        self.feat_dim = G_list[0].nodes[0]['feat'].shape[0]
+        self.feat_dim = G_list[0].nodes[0]['feat'].shape[0]  # 节点标签的 维度
 
-        for G in G_list:
+        for G in G_list:  # 遍历原始图
             adj = np.array(nx.to_numpy_matrix(G))
             if normalize:
                 sqrt_deg = np.diag(1.0 / np.sqrt(np.sum(adj, axis=0, dtype=float).squeeze()))
-                adj = np.matmul(np.matmul(sqrt_deg, adj), sqrt_deg)
+                adj = np.matmul(np.matmul(sqrt_deg, adj), sqrt_deg)  # 正则化的拉普拉斯矩阵
             self.adj_all.append(adj)
             self.len_all.append(G.number_of_nodes())
             self.label_all.append(G.graph['label'])
@@ -105,11 +116,11 @@ class GraphSampler(torch.utils.data.Dataset):
 
     def __getitem__(self, idx):
         adj = self.adj_all[idx]
-        num_nodes = adj.shape[0]
+        num_nodes = adj.shape[0]  # 每个原始图的节点个数 图之间应该会有所不同
         adj_padded = np.zeros((self.max_num_nodes, self.max_num_nodes))
-        adj_padded[:num_nodes, :num_nodes] = adj
+        adj_padded[:num_nodes, :num_nodes] = adj  # 经过了 padding
 
-        graph = self.graphs_list[idx]
+        graph = self.graphs_list[idx]  # 坍缩图
 
         return_dic = {'adj': adj_padded,
                       'feats': self.feature_all[idx].copy(),
@@ -158,4 +169,3 @@ class GraphSampler(torch.utils.data.Dataset):
                     return_dic[pool_adj_key] = pool_adj_padded
 
         return return_dic
-

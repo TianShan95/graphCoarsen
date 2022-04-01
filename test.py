@@ -234,5 +234,11 @@ import os
 # a = [1, 2, 3, 4]
 # print(sum(a[:2]))
 
-a = 3.14
-print(format(a, '.0f'))
+# a = 3.14
+# print(format(a, '.0f'))
+
+import sys
+# for args in sys.argv:
+#     print(args)
+
+print('\t'.join(sys.argv))

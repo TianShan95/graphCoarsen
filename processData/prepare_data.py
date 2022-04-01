@@ -3,15 +3,25 @@ from processData.graph_sampler import GraphSampler
 
 import torch
 import numpy as np
+from utils.logger import logger
 
 
 # 该函数 为 单独训练图网络准备数据
-def prepare_data(log_out_file, graphs, graphs_list, args, test_graphs=None, max_nodes=0, seed=0):
+def prepare_data(graphs, graphs_list, args, test_graphs=None, max_nodes=0, seed=0):
+    '''
+    :param graphs: 原始图
+    :param graphs_list: 坍缩图
+    :param args:
+    :param test_graphs:
+    :param max_nodes:
+    :param seed:
+    :return:
+    '''
     zip_list = list(zip(graphs, graphs_list))
     random.Random(seed).shuffle(zip_list)
     graphs, graphs_list = zip(*zip_list)
-    print('Test ratio: ', args.test_ratio)
-    print('Train ratio: ', args.train_ratio)
+    logger.info(f'Test ratio: {args.test_ratio}')
+    logger.info(f'Train ratio: {args.train_ratio}')
     test_graphs_list = []
 
     if test_graphs is None:  # 有训练集 验证集 测试集
@@ -29,22 +39,14 @@ def prepare_data(log_out_file, graphs, graphs_list, args, test_graphs=None, max_
         train_graphs_list = graphs_list[:train_idx]
         val_graphs = graphs[train_idx:]
         val_graphs_list = graphs_list[train_idx:]
-    print('Num training graphs: ', len(train_graphs),
-          '; Num validation graphs: ', len(val_graphs),
-          '; Num testing graphs: ', len(test_graphs))
-
-    print('Number of graphs: ', len(graphs))
-    print('Number of edges: ', sum([G.number_of_edges() for G in graphs]))
-    print('Max, avg, std of graph size: ', max([G.number_of_nodes() for G in graphs]), ', ' "{0:.2f}".format(np.mean([G.number_of_nodes() for G in graphs])),
-          ', ' "{0:.2f}".format(np.std([G.number_of_nodes() for G in graphs])))
 
     # 输出信息到log文件
-    with open(log_out_file, 'a') as f:
-        f.write(f'Num training graphs: {len(train_graphs)}; Num validation graphs: {len(val_graphs)}; Num testing graphs: {len(test_graphs)}\n')
 
-        f.write(f'Number of graphs: {len(graphs)}')
-        f.write(f'Number of edges: {sum([G.number_of_edges() for G in graphs])}')
-        f.write(f'Max, avg, std of graph size: {max([G.number_of_nodes() for G in graphs])},' 
+    logger.info(f'Num training graphs: {len(train_graphs)}; Num validation graphs: {len(val_graphs)}; '
+                f'Num testing graphs: {len(test_graphs)}\n')
+    logger.info(f'Number of graphs: {len(graphs)}')
+    logger.info(f'Number of edges: {sum([G.number_of_edges() for G in graphs])}')
+    logger.info(f'Max, avg, std of graph size: {max([G.number_of_nodes() for G in graphs])},' 
                 f'{(np.mean([G.number_of_nodes() for G in graphs])):.2f},' 
                 f'{np.std([G.number_of_nodes() for G in graphs]):.2f}')
 

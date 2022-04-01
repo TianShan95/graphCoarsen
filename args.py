@@ -113,8 +113,12 @@ def arg_parse():
     parser.add_argument('--dataset_name', type=str,
                         help='dynamic or static', default='Car_Hacking_Challenge_Dataset_rev20Mar2021')  # 0 or 1 or 2
 
+    parser.add_argument('--msg_smallest_num', type=int,
+                        help='the smallest num of msg of a graph', default=50)  # 强化学习 每个步骤取一个图 构成这个图报文最小的条数
+    parser.add_argument('--msg_biggest_num', type=int,
+                        help='the biggest num of msg of a graph', default=300)  # 强化学习 每个步骤取一个图 构成这个图报文最大的条数
 
-    parser.set_defaults(max_nodes=100,
+    parser.set_defaults(max_nodes=81,
                         feature_type='default',
                         datadir='../data/Car_Hacking_Challenge_Dataset_rev20Mar2021/0_Preliminary/0_Training/',
                         lr=0.001,
@@ -123,8 +127,8 @@ def arg_parse():
                         num_epochs=100,
                         train_ratio=0.8,
                         test_ratio=0.1,
-                        num_workers=2,
-                        input_dim=10,
+                        num_workers=8,
+                        # input_dim=10,
                         hidden_dim=20,
                         output_dim=20,
                         num_classes=2,  # 分两类 正常报文 异常报文

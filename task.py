@@ -14,7 +14,7 @@ import torch
 from utils.logger import logger
 
 
-def benchmark_task_val(log_out_dir, log_out_file, args, feat='node-label', pred_hidden_dims=[50], device='cpu'):
+def benchmark_task_val(log_out_dir, args, feat='node-label', pred_hidden_dims=[50], device='cpu'):
     '''
     :param log_out_dir: 实验结果输出文件夹 保存实验数据 和 训练过的模型
     :param args:
@@ -79,13 +79,13 @@ def benchmark_task_val(log_out_dir, log_out_file, args, feat='node-label', pred_
             logger.info('生成固定图大小')
             p = OnlyGraphData(args)
 
-        graphs = load_data.read_graphfile(p.output_name_suffix, max_nodes=args.max_nodes)
+        graphs = load_data.read_graphfile(p.output_name_suffix, max_nodes=args.max_nodes)  # 原始图
         logger.info('Data length before filtering: ', len(graphs))
 
-        dataset_copy = graphs.copy()
+        dataset_copy = graphs.copy()  # 拷贝原始图
 
         len_data = len(graphs)
-        graphs_list = []
+        graphs_list = []  # 存储 坍缩图
         pool_sizes = [int(i) for i in args.pool_sizes.split('_')]
         logger.info('pool_sizes: ', pool_sizes)
 
@@ -112,7 +112,7 @@ def benchmark_task_val(log_out_dir, log_out_file, args, feat='node-label', pred_
                 coarsen_graph = gp(adj.todense().astype(float), pool_sizes)
                 # if args.method == 'wave':
                 coarsen_graph.coarsening_pooling(args.normalize)
-                graphs_list.append(coarsen_graph)
+                graphs_list.append(coarsen_graph)  # 坍缩图
         logger.info('Data length after filtering: ', len(graphs), len(graphs_list))
         logger.info('Dataset preprocessed, dumping....')
         with open(dataset_file_name, 'wb') as f:
@@ -149,10 +149,10 @@ def benchmark_task_val(log_out_dir, log_out_file, args, feat='node-label', pred_
             # 得到数据集
             if args.with_test:
                 train_dataset, val_dataset, test_dataset, max_num_nodes, input_dim = \
-                        prepare_data(log_out_file, graphs, graphs_list, args, test_graphs=None, max_nodes=args.max_nodes, seed=i)
+                        prepare_data(graphs, graphs_list, args, test_graphs=None, max_nodes=args.max_nodes, seed=i)
             else:
                 train_dataset, val_dataset, test_dataset, max_num_nodes, input_dim = \
-                    prepare_data(log_out_file, graphs, graphs_list, args, test_graphs=[], max_nodes=args.max_nodes, seed=i)
+                    prepare_data(graphs, graphs_list, args, test_graphs=[], max_nodes=args.max_nodes, seed=i)
 
 
             # out_dir = args.bmname + '/tar_' + '_graphSize_' +str(args.gs) + str(args.train_ratio) + '_ter_' + str(args.test_ratio) + '/'   +  'num_shuffle' + str(args.num_shuffle)  + '/' +  'numconv_' + str(args.num_gc_layers) + '_dp_' + str(args.dropout) + '_wd_' + str(args.weight_decay) + '_b_' + str(args.batch_size) + '_hd_' + str(args.hidden_dim) + '_od_' + str(args.output_dim)  + '_ph_' + str(args.pred_hidden) + '_lr_' + str(args.lr)  + '_concat_' + str(args.concat)
@@ -172,7 +172,7 @@ def benchmark_task_val(log_out_dir, log_out_file, args, feat='node-label', pred_
             # with open(log_out_file, 'a') as f:
             #     f.write('Shuffle ' +str(i) + '====================================================================================\n')
 
-            pool_sizes = [int(i) for i in args.pool_sizes.split('_')]
+            pool_sizes = [int(i) for i in args.pool_sizes.split('_')]  # [10]
 
             # 如果指定了 模型参数路径 则 load 模型和 模型参数
             if args.ModelPara_dir:
