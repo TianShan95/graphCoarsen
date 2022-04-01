@@ -50,8 +50,12 @@ def benchmark_task_val(log_out_dir, args, feat='node-label', pred_hidden_dims=[5
     if not os.path.exists(data_out_dir):
         os.makedirs(data_out_dir)
 
-    graph_list_file_name = data_out_dir + 'graphs_list_Di.p'
-    dataset_file_name = data_out_dir + 'dataset_Di.p'
+    if args.randGen:
+        graph_list_file_name = f'{data_out_dir}graphs_list_Di_{args.msg_smallest_num}_{args.msg_biggest_num}.p'
+        dataset_file_name = f'{data_out_dir}dataset_Di_{args.msg_smallest_num}_{args.msg_biggest_num}.p'  # 原始
+    else:
+        graph_list_file_name = data_out_dir + 'graphs_list_Di.p'
+        dataset_file_name = data_out_dir + 'dataset_Di.p'
 
     if os.path.isfile(graph_list_file_name) and os.path.isfile(dataset_file_name):
     # if False:

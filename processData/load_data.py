@@ -3,6 +3,7 @@ import numpy as np
 import scipy as sc
 import os
 import re
+from utils.logger import logger
 
 
 # 本文件 在单独训练 坍塌图 网络 提供 图特征的
@@ -43,9 +44,9 @@ def read_graphfile(dataset_suffix, max_nodes=None):
                 node_labels += [int(line) - 1]
         # 得到共有多少中节点标签
         num_unique_node_labels = max(node_labels) + 1
-        print(f'共有 {num_unique_node_labels} 种节点标签')
+        logger.info(f'共有 {num_unique_node_labels} 种节点标签')
     except IOError:
-        print('No node labels')
+        logger.info('No node labels')
 
     # 获取节点属性列表
     # 暂时忽略
