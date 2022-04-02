@@ -29,9 +29,9 @@ def main():
 
     # 定义 并创建 此次实验的 log 文件夹
     if prog_args.randGen:
-        log_out_dir = prog_args.out_dir + '/'  + 'randGen_' + str(prog_args.seed)  + '_Normlize_'+ str(bool(prog_args.normalize))+'_concat_'+str(prog_args.concat) + time_mark + '_log/'
+        log_out_dir = f'{prog_args.out_dir}/randGen_{prog_args.seed}_{prog_args.msg_smallest_num}_{prog_args.msg_biggest_num}_Normlize_{prog_args.normalize}_concat_{prog_args.concat}_{time_mark}_log/'
     else:
-        log_out_dir = prog_args.out_dir + '/'  + 'graphSize_' + str(prog_args.gs)  + '_Normlize_'+ str(bool(prog_args.normalize))+'_concat_'+str(prog_args.concat) + time_mark + '_log/'
+        log_out_dir = f'{prog_args.out_dir}/graphSize_{prog_args.gs}_Normlize_{prog_args.normalize}_concat_{prog_args.concat}_{time_mark}_log/'
     if not os.path.exists(log_out_dir):
         os.makedirs(log_out_dir, exist_ok=True)
     # 定义 并创建 log 文件

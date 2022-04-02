@@ -46,7 +46,8 @@ class RandGraphData:
 
         # 判断文件夹 是否存在
         output_ds_dir = output_ds_dir + '_dataset/'  # 输出数据集路径 放在 与 原始csv 同路径下
-        self.output_name_suffix = output_ds_dir + os.path.basename(can_csv_dir) + dataset_file_suffix + 'random_' + str(args.seed)  # 生成数据集的文件名前缀
+        self.output_name_suffix = f'{output_ds_dir}{os.path.basename(can_csv_dir)}{dataset_file_suffix}' \
+                                  f'random_{args.seed}_{args.msg_smallest_num}_{args.msg_biggest_num}'  # 生成数据集的文件名前缀
 
         if args.regen_dataset:
             regen = True
@@ -54,7 +55,7 @@ class RandGraphData:
             regen = False  # 是否需要重新生成数据集
             if os.path.exists(output_ds_dir):
                 for d_suffix in dataset_suffix_list:
-                    if os.path.isfile(self.output_name_suffix + '_' + d_suffix + '.txt'):
+                    if os.path.isfile(f'{self.output_name_suffix}_{d_suffix}.txt'):
                         continue
                     else:
                         regen = True
