@@ -84,7 +84,7 @@ def benchmark_task_val(log_out_dir, args, feat='node-label', pred_hidden_dims=[5
             logger.info('生成固定图大小')
             p = OnlyGraphData(args)
 
-        graphs = load_data.read_graphfile(p.output_name_suffix, max_nodes=args.max_nodes)  # 从数据集得到图对象
+        graphs = load_data.read_graphfile(p.output_name_suffix, args.Di_graph, max_nodes=args.max_nodes)  # 从数据集得到图对象
         logger.info(f'Data length before filtering: {len(graphs)}')
 
         dataset_copy = graphs.copy()  # 拷贝原始图

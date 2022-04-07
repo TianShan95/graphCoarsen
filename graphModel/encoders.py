@@ -354,7 +354,7 @@ class WavePoolingGcnEncoder(GcnEncoderGraph):
             else:
                 embedding_mask = None
             adj_new = adj_pooled_list[i].type(torch.FloatTensor).to(self.device)
-            self.conv_last_after_pool[i] = None  # 池化后减少一层卷积层 2022-04-01
+            self.conv_last_after_pool[i] = None  # 池化后减少一层卷积层 2022-04-01  1 层
             embedding_tensor = self.gcn_forward(embedding_tensor, adj_new,
                                                 self.conv_first_after_pool[i], self.conv_block_after_pool[i],
                                                 self.conv_last_after_pool[i], embedding_mask)

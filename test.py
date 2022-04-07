@@ -241,4 +241,7 @@ import sys
 # for args in sys.argv:
 #     print(args)
 
-print('\t'.join(sys.argv))
+# print('\t'.join(sys.argv))
+a = 0
+if a:
+    print('ok')

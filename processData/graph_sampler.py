@@ -128,11 +128,11 @@ class GraphSampler(torch.utils.data.Dataset):
                       'num_nodes': num_nodes,
                       'assign_feats': self.assign_feat_all[idx].copy()}
 
-        for i in range(len(graph.graphs) - 1):
-            ind = i + 1
+        for i in range(len(graph.graphs) - 1):  # graph.graphs 是包括原始图的邻接矩阵 和 坍缩后的邻接矩阵（稀疏矩阵存储）
+            ind = i + 1  # 自动加 1 忽略原始图的邻接矩阵
             adj_key = 'adj_pool_' + str(ind)
             num_nodes_key = 'num_nodes_' + str(ind)
-            num_nodes_ = graph.graphs[ind].shape[0]
+            num_nodes_ = graph.graphs[ind].shape[0]  # 坍缩后的图的节点个数
             return_dic[num_nodes_key] = num_nodes_
             adj_padded_ = np.zeros((self.max_num_nodes, self.max_num_nodes))
             adj_padded_[:num_nodes_, :num_nodes_] = graph.graphs[ind].todense().astype(float)

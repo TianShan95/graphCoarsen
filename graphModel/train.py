@@ -71,8 +71,8 @@ def train(data_out_dir, history, canvas, dataset, model, args, same_feat=True, v
             # assign_input = Variable(data['assign_feats'].float(), requires_grad=False).to(device)
 
             # if args.method == 'wave':
-            adj_pooled_list = []
-            batch_num_nodes_list = []
+            adj_pooled_list = []  # 坍缩后的 邻接矩阵 大小为 self.max_node_num
+            batch_num_nodes_list = []  # 坍缩后的节点个数
             pool_matrices_dic = dict()
             pool_sizes = [int(i) for i in args.pool_sizes.split('_')]
             for i in range(len(pool_sizes)):
@@ -182,12 +182,12 @@ def train(data_out_dir, history, canvas, dataset, model, args, same_feat=True, v
                               + '_nor_' + str(args.normalize) + '.pth'
                 torch.save(model, data_out_dir + model_name)  # 保存 整个模型
             else:
-                model_para_name = str(format(val_result['acc'], '.2f')) + '_better_para_' + '_totalEpoch_' + \
+                model_para_name = str(format(val_result['acc'], '.2f')) + '_better_para_' + 'totalEpoch_' + \
                                   str(args.num_epochs) + '_epoch_' + str(epoch) + '_ps_' + args.pool_sizes + '_gs_' + \
                                   initial_gs + '_nor_' + str(args.normalize) + model_name_add + '.pth'
                 torch.save(model.state_dict(), data_out_dir + model_para_name)  # 保存模型参数
                 # 保存模型
-                model_name = str(format(val_result['acc'], '.2f')) + '_better_model_' + '_totalEpoch_' + \
+                model_name = str(format(val_result['acc'], '.2f')) + '_better_model_' + 'totalEpoch_' + \
                              str(args.num_epochs) + '_epoch_' + str(epoch) + '_ps_' + args.pool_sizes + '_gs_' + \
                              initial_gs + '_nor_' + str(args.normalize) + model_name_add + '.pth'
                 torch.save(model, data_out_dir + model_name)  # 保存 整个模型

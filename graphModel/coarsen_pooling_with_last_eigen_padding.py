@@ -87,7 +87,7 @@ class Graphs():
 
         # 构造字典 clusters 键名是图的标签名 键值是簇内的节点标号
         clusters = dict()
-        for inx, label in enumerate(sc.labels_):
+        for inx, label in enumerate(sc.labels_):  # 聚类算法把此图的节点分为 num_clusters 个类，类标签从0开始
             if label not in clusters:
                 clusters[label] = []
             clusters[label].append(inx)  # 双层列表 内层列表表示 哪个节点 在簇内
@@ -107,12 +107,13 @@ class Graphs():
 
         #  Get inter matrix
         #  去掉 簇 与 簇 之间 的 连接
+        #  保持原始邻接的形状 把非簇内的节点置0 只保留簇内节点
         A_int = sp.lil_matrix(adjacency_matrix)
         for i in range(len(clusters)):
             zero_list = list(set(range(num_nodes)) - set(clusters[i]))  # 这个簇 里 没有 哪些 节点
             for j in clusters[i]:
                 A_int[j, zero_list] = 0
-                A_int[zero_list, j] = 0  # 把 池化后 的 小图 不和大图 连接 的 节点 置零 表示 大图里 每个小图 的 内部连接
+                A_int[zero_list, j] = 0
 
         #  Getting adjacenccy matrix wuith only external links
         #  每个簇 和 其他簇 的 邻接矩阵

@@ -7,7 +7,7 @@ from utils.logger import logger
 
 
 # 本文件 在单独训练 坍塌图 网络 提供 图特征的
-def read_graphfile(dataset_suffix, max_nodes=None):
+def read_graphfile(dataset_suffix, direction,  max_nodes=None):
     ''' Read data from https://ls11-www.cs.tu-dortmund.de/staff/morris/graphkerneldatasets
         graph index starts with 1 in file
 
@@ -32,9 +32,9 @@ def read_graphfile(dataset_suffix, max_nodes=None):
     # print('######')
 
     # 获取 节点标签 列表
-    # 列表的(角标+1) 标识 节点编号(从1开始) 元素标识 该节点编号对应的 标签
+    # 列表的(角标+1) 表示 节点编号(从1开始) 元素表示 该节点编号对应的 标签
     # 默认文件的 节点标签元素 从 1 开始
-    # 列表 节点标签 元素 从 0 开始
+    # 列表 节点标签 元素 从 0 开始 此模型独热编码表示节点标签 第一个节点的节点标签是0 独热编码第0个元素为为1
     filename_nodes = dataset_suffix + '_node_labels.txt'
     node_labels = []
     try:
@@ -87,7 +87,7 @@ def read_graphfile(dataset_suffix, max_nodes=None):
     # 键名表示 图编号 从 1 开始
     adj_list = {i: [] for i in range(1, len(graph_labels) + 1)}
     # 该字典表示 每个图所包含的节点编号
-    # 键名是图编号 键值是一个列表 该图包含的节点编号 列表里的元素是 int 型
+    # 键名是图编号 键值是一个列表 列表元素是元祖 每个元祖有两个元素(节点编号 从1开始) 分别是边的起始点和终点
     # index_graph = {i: [] for i in range(1, len(graph_labels) + 1)}
     # 统计该数据集 所有的 边数
     num_edges = 0
@@ -107,8 +107,10 @@ def read_graphfile(dataset_suffix, max_nodes=None):
     graphs = []
     for i in range(1, 1 + len(adj_list)):
         # indexed from 1 here
-        # G = nx.from_edgelist(adj_list[i])
-        G = nx.from_edgelist(adj_list[i], create_using=nx.DiGraph())  # 有向图
+        if direction:  # 如果是有向图
+            G = nx.from_edgelist(adj_list[i], create_using=nx.DiGraph())  # 有向图
+        else:
+            G = nx.from_edgelist(adj_list[i])
 
         if max_nodes is not None and G.number_of_nodes() > max_nodes:
             continue
@@ -116,7 +118,7 @@ def read_graphfile(dataset_suffix, max_nodes=None):
         # add features and labels
         G.graph['label'] = graph_labels[i - 1]
         for u in G.nodes():
-            # u 是节点编号 从 1 开始
+            # u 是节点编号 从 1 开始 也就是根据边列表构建图时 节点的表示（这里使用的是节点编号来表示的每个节点）
             # 创建 节点标签的 独热编码
             if len(node_labels) > 0:
                 node_label_one_hot = [0] * num_unique_node_labels
@@ -130,6 +132,8 @@ def read_graphfile(dataset_suffix, max_nodes=None):
         #     G.graph['feat_dim'] = node_attrs[0].shape[0]
 
         # relabeling 编号
+        # 是否可以 relabel 虽然同一个图的节点不同 节点标签不同 relabel后，不同图里相同的节点标签就失效了
+        # 在图卷积时使用的是 G.graph['label'] 这是属性 而 G.nodes 返回的是节点编号
         mapping = {}
         it = 0
         if float((nx.__version__)[:3]) < 2.0:

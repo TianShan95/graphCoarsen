@@ -118,6 +118,10 @@ def arg_parse():
     parser.add_argument('--msg_biggest_num', type=int,
                         help='the biggest num of msg of a graph', default=300)  # 强化学习 每个步骤取一个图 构成这个图报文最大的条数
 
+    parser.add_argument('--Di_graph', type=int,
+                        help='Whether is Di-graph', default=1)  # 是否是有向图 默认为有向图
+
+
     parser.set_defaults(max_nodes=81,
                         feature_type='default',
                         datadir='../data/Car_Hacking_Challenge_Dataset_rev20Mar2021/0_Preliminary/0_Training/',
